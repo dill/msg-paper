@@ -50,6 +50,8 @@ for(noise.level in noise.levels){
 
       result<-foreach(j=1:nsims)%dopar%{
 
+         # this.res<-c(model, noise, samp, j, MSE)
+
          # make the sample
          samp.ind<-sample(1:length(fs.data$x),sample.size)
          samp<-fs.data[samp.ind,]
@@ -59,19 +61,26 @@ for(noise.level in noise.levels){
          ## fit tprs
          b.tprs<-gam(z~s(x,y,k=100),data=samp)
          fv.tprs<-predict(b.tprs,pred.data)
+         this.res<-c("tprs",noise.level,sample.size,j,
+                     mean((fv.tprs-fs.data$z)^2)
 
          # fit soap film
-         b.soap<-gam(z~s(x,y,k=39,bs="so",xt=list(bnd=list(bnd))),
+         b.soap<-gam(z~s(x,y,k=39,bs="so",xt=list(bnd=list(fs.bnd))),
                      knots=knots,data=samp.data)
          fv.soap<-predict(b.soap,newdata=pred.data,block.size=-1)
+         this.res<-c("soap",noise.level,sample.size,j,
+                     mean((fv.soap-fs.data$z)^2)
 
          # fit mdsds
-mds.fit<-gam.mds(aral.dat,pred.grid,bnd,grid.res=c(20,20),gam.method="GCV.Cp") 
-
-# this.res<-c(model, noise, samp, MSE)
+         mds.fit<-gam.mds(samp,pred.data,fs.bnd,grid.res=c(20,20),
+                          gam.method="GCV.Cp") 
+         this.res<-c("mdsds",noise.level,sample.size,j,
+                     mean((mds.fit$pred-fs.data$z)^2)
 
          this.res
       }
+
+
    }
 }
 
