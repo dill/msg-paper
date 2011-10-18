@@ -16,9 +16,9 @@ options(cores=6)
 registerDoMC()
 
 ## options
-noise.levels<-c(0.3)#c(0.1,1,10)
-sample.sizes<-c(100)
-nsims<-1
+noise.levels<-c(0.1,1,10) # as in soap paper
+sample.sizes<-c(100, 300, 600) # 600 used in soap paper
+nsims<-200
 
 
 ## Initialisation
@@ -37,7 +37,7 @@ xx<-xx[onoff];yy<-yy[onoff]
 fs.data<-data.frame(x=xx,y=yy,z=fs.test(xx,yy))
 pred.data<-data.frame(x=xx,y=yy)
 
-# knot setup
+# knot setup for soap, as in paper
 knots <- data.frame(x=rep(seq(-.5,3,by=.5),4),
                     y=rep(c(-.6,-.3,.3,.6),rep(8,4)))
 knots.ind<-inSide(bnd,x=knots$x,y=knots$y)
@@ -52,7 +52,7 @@ for(noise.level in noise.levels){
    for(sample.size in sample.sizes){
 
       result<-foreach(j=1:nsims,.combine=rbind,.init=c())%dopar%{
-
+#for(j in 1:nsims){
          # this.res<-c(model, noise, samp, j, MSE)
 
          # make the sample
@@ -65,20 +65,20 @@ for(noise.level in noise.levels){
          b.tprs<-gam(z~s(x,y,k=100),data=samp)
          fv.tprs<-predict(b.tprs,pred.data)
          this.res<-c("tprs",noise.level,sample.size,j,
-                     mean((fv.tprs-fs.data$z)^2))
+                     mean((fv.tprs-fs.data$z)^2),0)
 
          # fit soap film
          b.soap<-gam(z~s(x,y,k=39,bs="so",xt=list(bnd=list(fs.bnd))),
                      knots=knots,data=samp)
          fv.soap<-predict(b.soap,newdata=pred.data,block.size=-1)
          this.res<-rbind(this.res,c("soap",noise.level,sample.size,j,
-                         mean((fv.soap-fs.data$z)^2)))
+                         mean((fv.soap-fs.data$z)^2),0))
 
          # fit mdsds
          mds.fit<-gam.mds(samp,pred.data,fs.bnd,grid.res=c(20,20),
                           gam.method="GCV.Cp") 
          this.res<-rbind(this.res,c("mdsds",noise.level,sample.size,j,
-                         mean((mds.fit$pred-fs.data$z)^2)))
+                         mean((mds.fit$pred-fs.data$z)^2),mds.fit$mds.dim))
 
          this.res
       }
@@ -88,11 +88,5 @@ for(noise.level in noise.levels){
    }
 }
 
-
-
-
-plot.it(mds.fit,paste("mds ",mds.fit$mds.dim,"D",sep=""))
-
-
-
+write.csv(big.res,"ramsay-results.csv")
 
