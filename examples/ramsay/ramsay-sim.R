@@ -12,6 +12,9 @@ library(msg)
 library(doMC)
 library(foreach)
 
+options(cores=6)
+registerDoMC()
+
 ## options
 noise.levels<-c(0.3)#c(0.1,1,10)
 sample.sizes<-c(100)
@@ -42,13 +45,13 @@ knots<-list(x=knots$x[knots.ind],y=knots$y[knots.ind])
 
 # clean up
 rm(xx,yy,m,n,bnd)
-
+big.res<-c()
 
 # simulation time!
 for(noise.level in noise.levels){
    for(sample.size in sample.sizes){
 
-      result<-foreach(j=1:nsims)%dopar%{
+      result<-foreach(j=1:nsims,.combine=rbind,.init=c())%dopar%{
 
          # this.res<-c(model, noise, samp, j, MSE)
 
@@ -62,24 +65,25 @@ for(noise.level in noise.levels){
          b.tprs<-gam(z~s(x,y,k=100),data=samp)
          fv.tprs<-predict(b.tprs,pred.data)
          this.res<-c("tprs",noise.level,sample.size,j,
-                     mean((fv.tprs-fs.data$z)^2)
+                     mean((fv.tprs-fs.data$z)^2))
 
          # fit soap film
          b.soap<-gam(z~s(x,y,k=39,bs="so",xt=list(bnd=list(fs.bnd))),
-                     knots=knots,data=samp.data)
+                     knots=knots,data=samp)
          fv.soap<-predict(b.soap,newdata=pred.data,block.size=-1)
-         this.res<-c("soap",noise.level,sample.size,j,
-                     mean((fv.soap-fs.data$z)^2)
+         this.res<-rbind(this.res,c("soap",noise.level,sample.size,j,
+                         mean((fv.soap-fs.data$z)^2)))
 
          # fit mdsds
          mds.fit<-gam.mds(samp,pred.data,fs.bnd,grid.res=c(20,20),
                           gam.method="GCV.Cp") 
-         this.res<-c("mdsds",noise.level,sample.size,j,
-                     mean((mds.fit$pred-fs.data$z)^2)
+         this.res<-rbind(this.res,c("mdsds",noise.level,sample.size,j,
+                         mean((mds.fit$pred-fs.data$z)^2)))
 
          this.res
       }
 
+     big.res<-rbind(big.res,result)
 
    }
 }
