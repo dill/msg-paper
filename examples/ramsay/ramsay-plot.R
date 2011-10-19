@@ -89,16 +89,16 @@ im<-matrix(NA,m,n)
 par(mfrow=c(1,3))
 
 im[onoff]<-dat2[1,]
-image(z=im,x=xm,y=yn,col=heat.colors(1000),main="tprs",asp=1,xlab="x",ylab="y",zlim=c(-5,5))
+image(z=im,x=xm,y=yn,col=heat.colors(1000),main="tprs",asp=1,xlab="x",ylab="y",zlim=c(-5,5),las=1)
 contour(z=im,x=xm,y=yn,add=T,nlevels=25)
 
 im[onoff]<-dat2[2,]
-image(z=im,x=xm,y=yn,col=heat.colors(1000),main="soap",asp=1,xlab="x",ylab="y",zlim=c(-5,5))
+image(z=im,x=xm,y=yn,col=heat.colors(1000),main="soap",asp=1,xlab="x",ylab="y",zlim=c(-5,5),las=1)
 contour(z=im,x=xm,y=yn,add=T,nlevels=25)
 
 
 im[onoff]<-dat2[3,]
-image(z=im,x=xm,y=yn,col=heat.colors(1000),main="mdsds",asp=1,xlab="x",ylab="y",zlim=c(-5,5))
+image(z=im,x=xm,y=yn,col=heat.colors(1000),main="mdsds",asp=1,xlab="x",ylab="y",zlim=c(-5,5),las=1)
 contour(z=im,x=xm,y=yn,add=T,nlevels=25)
 
 
