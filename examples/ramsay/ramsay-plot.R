@@ -2,47 +2,24 @@
 
 library(ggplot2)
 
-# do the layout stuff
-plot.rows<-2
-plot.cols<-1
-Layout <- grid.layout(nrow = plot.rows, ncol = plot.cols,
-                      widths = unit(rep(3,plot.rows*plot.cols),"null"),
-                      heights = unit(rep(3,plot.rows*plot.cols), "null"))
-subplot <- function(x, y) viewport(layout.pos.row = x,layout.pos.col = y)
-vplayout <- function(...) {
-     grid.newpage()
-     pushViewport(viewport(layout = Layout))
-}
-
-
-grid.newpage()
-pushViewport(viewport(layout = Layout))
-
-
-
 
 dat<-read.csv("ramsay-results.csv")
-
 dat<-dat[,-1]
-
 names(dat)<-c("model","noise","n","i","mse","mdsdim")
 
 
 theme_set(theme_bw())
-
 p<-ggplot(dat)
 p<-p+geom_boxplot(aes(x=model,y=log(mse)))
-p<-p+facet_wrap(~n,nrow=1)
+p<-p+facet_grid(noise~n)
 p<-p+labs(x="Model",y="Logarithm of per realisation MSE")
 p<-p+opts(panel.grid.major=theme_blank(),
           panel.grid.minor=theme_blank(),
           panel.background=theme_rect())
-#p<-p+scale_y_log()
-
 print(p)
 
-ggsave(file="ramsay-result.pdf",height=4,width=6)
-
+ggsave(file="ramsay-result.eps",height=6,width=6)
+dev.off()
 
 # plot the MDS projection dimension
 #dat<-dat[dat$model=="mdsds",]
@@ -75,7 +52,7 @@ fs.bnd<-list(x=c(bnd$x,bnd$x[1]),y=c(bnd$y,bnd$y[1]))
 
 # create the prediction grid and the points to sample
 # from
-m<-45;n<-25
+m<-100;n<-100
 xm <- seq(-1,3.5,length=m); yn<-seq(-1,1,length=n)
 xx <- rep(xm,n); yy<-rep(yn,rep(m,n))
 onoff<-inSide(bnd,xx,yy)
@@ -83,23 +60,49 @@ xx<-xx[onoff];yy<-yy[onoff]
 fs.data<-data.frame(x=xx,y=yy,z=fs.test(xx,yy))
 pred.data<-data.frame(x=xx,y=yy)
 
-
+# old, crappy way of doing this
 im<-matrix(NA,m,n)
 
-par(mfrow=c(1,3))
+par(mfrow=c(1,3),mar=c(1,1.5,1,1.5),mgp=c(1.5,0.75,0),oma=c(1,1,1,1))
 
 im[onoff]<-dat2[1,]
-image(z=im,x=xm,y=yn,col=heat.colors(1000),main="tprs",asp=1,xlab="x",ylab="y",zlim=c(-5,5),las=1)
-contour(z=im,x=xm,y=yn,add=T,nlevels=25)
+image(z=im,x=xm,y=yn,col=heat.colors(100),main="tprs",asp=1,xlab="",ylab="",zlim=c(-5,5),las=1, lwd=2,axes=FALSE)
+contour(z=im,x=xm,y=yn,levels=seq(-5,5,by=.25),add=TRUE,labcex=0.3,lwd=0.5)
+lines(fs.boundary(),lwd=2)
 
 im[onoff]<-dat2[2,]
-image(z=im,x=xm,y=yn,col=heat.colors(1000),main="soap",asp=1,xlab="x",ylab="y",zlim=c(-5,5),las=1)
-contour(z=im,x=xm,y=yn,add=T,nlevels=25)
+image(z=im,x=xm,y=yn,col=heat.colors(1000),main="soap",asp=1,xlab="",ylab="",zlim=c(-5,5),las=1,axes=FALSE)
+contour(z=im,x=xm,y=yn,levels=seq(-5,5,by=.25),add=TRUE,labcex=0.3,lwd=0.5)
+lines(fs.boundary(),lwd=2)
 
 
 im[onoff]<-dat2[3,]
-image(z=im,x=xm,y=yn,col=heat.colors(1000),main="mdsds",asp=1,xlab="x",ylab="y",zlim=c(-5,5),las=1)
-contour(z=im,x=xm,y=yn,add=T,nlevels=25)
+image(z=im,x=xm,y=yn,col=heat.colors(1000),main="mdsds",asp=1,xlab="",ylab="",zlim=c(-5,5),las=1,axes=FALSE)
+contour(z=im,x=xm,y=yn,levels=seq(-5,5,by=.25),add=TRUE,labcex=0.3,lwd=0.5)
+lines(fs.boundary(),lwd=2)
+
+dev.copy2eps(file="ramsay-real.eps",width=6,height=1.8)
+#dev.copy2pdf(file="ramsay-real.pdf",width=6,height=1.8)
 
 
+# (paired) Wilcoxon signed rank test
+tprs.dat<-dat[dat$model=="tprs",]
+soap.dat<-dat[dat$model=="soap",]
+mdsds.dat<-dat[dat$model=="mdsds",]
+
+for(n in unique(tprs.dat$n)){
+   for(noise in unique(tprs.dat$noise)){
+
+      this.tprs<-tprs.dat[tprs.dat$n==n & tprs.dat$noise==noise,]
+      this.soap<-soap.dat[soap.dat$n==n & soap.dat$noise==noise,]
+      this.mdsds<-mdsds.dat[mdsds.dat$n==n & mdsds.dat$noise==noise,]
+
+      p<-wilcox.test(this.tprs$mse,this.soap$mse,paired=TRUE)$p.value
+      cat("tprs n=",n,"noise=",noise,"p=",p,"\n")
+
+      p<-wilcox.test(this.mdsds$mse,this.soap$mse,paired=TRUE)$p.value
+      cat("mdsds n=",n,"noise=",noise,"p=",p,"\n")
+
+   }
+}
 
