@@ -12,7 +12,7 @@ theme_set(theme_bw())
 p<-ggplot(dat)
 p<-p+geom_boxplot(aes(x=model,y=log(mse)))
 p<-p+facet_grid(noise~n)
-p<-p+labs(x="Model",y="Logarithm of per realisation MSE")
+p<-p+labs(x="Model",y="Logarithm of mean MSE per realisation")
 p<-p+opts(panel.grid.major=theme_blank(),
           panel.grid.minor=theme_blank(),
           panel.background=theme_rect())
@@ -106,3 +106,6 @@ for(n in unique(tprs.dat$n)){
    }
 }
 
+
+
+median(mdsds.dat$mdsdim)

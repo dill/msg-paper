@@ -53,7 +53,7 @@ for(noise.level in noise.levels){
 
       result<-foreach(j=1:nsims,.combine=rbind,.init=c())%dopar%{
 #for(j in 1:nsims){
-         # this.res<-c(model, noise, samp, j, MSE)
+         # this.res<-c(model, noise, samp, j, MSE, MDS dimension)
 
          # make the sample
          samp.ind<-sample(1:length(fs.data$x),sample.size)

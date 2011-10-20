@@ -278,14 +278,14 @@ Exploiting this frequency interpretation, it then follows to introduce a weighti
 \end{equation}
 the function $w$ can then be used to pick out particularly high frequencies and penalize those more than the lower frequency ones. Setting $w(\boldsymbol{\tau})=1, \forall \boldsymbol{\tau}$ recovers (\ref{tprs-pen}).
 
-Duchon suggests the use of $w(\boldsymbol{\tau})= \lvert \boldsymbol{\tau} \rvert^{2s}$. This will still give a minimizer of broadly the same form as the thin plate spline functions in (\ref{tprs-basis}) but $M$ will change. First writing down this penalty:
+Duchon suggests the use of $w(\boldsymbol{\tau})= \lvert \boldsymbol{\tau} \rvert^{2s}$. This will still give a minimiser of broadly the same form as the thin plate spline functions in (\ref{tprs-basis}) but $M$ will change. First writing down this penalty:
 \begin{equation}
 \breve{J}_{m,d} = \int \ldots \int_{\mathbb{R}^d} \lvert \boldsymbol{\tau} \rvert^{2s} \sum_{\nu_1 + \dots + \nu_d=m} \frac{m!}{\nu_1! \dots \nu_d!}\left ( \mathfrak{F} \frac{\partial^m f}{\partial x_1^{\nu_1} \ldots  \partial x_d^{\nu_d}} \left (\boldsymbol{\tau} \right ) \right )^2 \text{d} \boldsymbol{\tau}.
 \label{duchon-penalty}
 \end{equation}
-The less complex (more smooth) frequency components of the basis functions are penalized less. This allows some of the fequencies of  the radial basis functions to do the job of the $M$ linearly independent polynomials which were not included due to reduced nullspace size. The penalty allows the use of a reduced nullspace (in both size and complexity terms) while not sacrificing the continuity of $f$. 
+The less complex (more smooth) frequency components of the basis functions are penalised less. This allows some of the frequencies of  the radial basis functions to do the job of the $M$ linearly independent polynomials which were not included due to reduced nullspace size. The penalty allows the use of a reduced nullspace (in both size and complexity terms) while not sacrificing the continuity of $f$. 
 
-Again, (\ref{tprs-pen}) can be recovered from this penalty (by setting $s=0$). When $s>0$ higher frequencies are penalized more than lower ones. In order to obtain smooth functions it is required that $m+s>d/2$ (this replaces the condition $2m>d$). Using a value of $s>0$ allows for high dimensional smoothing while still using lower-order penalties without yielding discontinuous functions. One can therefore think of $s$ as a kind of ``fudge factor'' that allows the conditions on $m$ and $d$ to be relaxed. Given some fixed combination of $m$ and $d$, an $s$ can be found by simply calculating $s>d/2-m$. For the examples below, the smallest $s$ is used with $m=2$, so:
+Again, (\ref{tprs-pen}) can be recovered from this penalty (by setting $s=0$). When $s>0$ higher frequencies are penalised more than lower ones. In order to obtain smooth functions it is required that $m+s>d/2$ (this replaces the condition $2m>d$). Using a value of $s>0$ allows for high dimensional smoothing while still using lower-order penalties without yielding discontinuous functions. One can therefore think of $s$ as a kind of ``fudge factor'' that allows the conditions on $m$ and $d$ to be relaxed. Given some fixed combination of $m$ and $d$, an $s$ can be found by simply calculating $s>d/2-m$. For the examples below, the smallest $s$ is used with $m=2$, so:
 \begin{equation}
 s=d/2-1.
 \label{duchon-s-eqn2}
@@ -293,7 +293,7 @@ s=d/2-1.
 
 The red line in figure \ref{nullspace-dim} gives the number of functions that lie in the nullspace of penalty (\ref{duchon-penalty}), i.e. the result of using (\ref{duchon-s-eqn2}) with (\ref{gds-bigm}). For plotting $m=2$ so the derivative order is constant as the dimensionality increases, leading to a linear increase in nullspace size with the smoothing dimension.
 
-Note that the eigen-decomposition technique for avoiding knot selection for thin plate splines from Wood (2003) can be used with Duchon splines.
+Note that the eigen-decomposition technique for avoiding knot selection for thin plate splines from Wood (2003) can be used with Duchon splines and is used in all of the examples in this article.
 
 \subsection{Selecting the MDS projection dimension}
 
@@ -312,25 +312,32 @@ To illustrate the utility of the model two simulation studies are shown, followe
 
 \subsection{Ramsay's horseshoe}
 
-The horseshoe shape shown in Figure \ref{leakage} is an obvious benchmark for techniques that wish to combat leakage. Although perhaps unrealistic (and bordering on pathological), any new methods that works well on the horseshoe should have a good chance of working well in other situations. A simulation experiment was run in which 200 replicates were generated at each combination of three error levels (standard normal noise multiplied by $(0.1,1,10)$) and three sample sizes (100, 300, 600). Figure \ref{ramsay-results} shows box	plots of log mean squared error over a prediction grid of THIS MANY points and realisations of the models over that prediciton grid when the noise was set to  and the sample size was BLAHBLAH. COMMENT ON THIS.
+The horseshoe shape shown in Figure \ref{leakage} is an obvious benchmark for techniques that wish to combat leakage. Although perhaps unrealistic (and bordering on pathological), any new methods that works well on the horseshoe should have a good chance of working well in other situations. A simulation experiment was run in which 200 replicates were generated at each combination of three error levels (standard normal noise multiplied by $(0.1,1,10)$) and three sample sizes (100, 300, 600). Other aspects of the setup were exactly as in Wood et al. (2008), a thin plate regression spline, (Wood, 2003), with basis size 100 and a soap film smoother with 32 interior knots  and a 40 knot cyclic  spline was used to estimate the boundary. For the mdsds model, the basis size was set to 100 and a 20 by 20 initial grid was used for the MDS projetion (see Appendix A), MDS projection dimensions was selected by GCV in the range of 2 and the number of dimensions that explained 95\% of the variation in the distance matrix of the initial grid. Smoothing parameters were selected by GCV. For each realisation the mean squared error (MSE) was calculated between the true function and a prediction grid of 720 points.
 
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{examples/ramsay/ramsay-result.eps} \\% \includegraphics[width=\textwidth]{examples/ramsay/ramsay-real.eps}
 % TKTKTK uncomment the above!
-\caption{Top: boxplots of per-realisation $\log$ mean squared error at the three noise levels (rows) and sample sizes (columns). Using a paired Wilcoxon signed two-sample test, in every case the thin plate regression spline model (``tprs'') was found to be significantly worse than the soap film smoother (``soap'') at the 0.05 level. The new approach (``mdsds'') was only significantly different in two situations: sample size 300, noise level 10 (where it was worse, i.e. higher MSE) and sample size 600 with noise level 0.1 (where it was better, i.e. lower MSE).}
+\caption{Top: boxplots of per-realisation $\log$ mean squared error at the three noise levels (rows) and sample sizes (columns). Using a paired Wilcoxon signed two-sample test, in every case the thin plate regression spline model (``tprs'') was found to be significantly worse than the soap film smoother (``soap'') at the 0.05 level. The new approach (``mdsds'') was only significantly different in two situations: sample size 300, noise level 10 (where it was worse, i.e. higher MSE) and sample size 600 with noise level 0.1 (where it was better, i.e. lower MSE). Bottom: typical predictions from the three models when the noise level was 1 and the sample size was 300. The prediciton grid used were was much finer than the one used for the MSE calculation above.}
 \label{ramsay-results}
 % generated by examples/ramsay/ramsay-plot.R
 \end{figure}
 
-
+As can be seen in Figure \ref{ramsay-results}, the thin plate regression spline has rather poor performance in MSE terms while MDSDS performs similarly well to soap. The median number of dimensions selected for the MDS projection using GCV was 3 (max. 14, min. 2). Looking more qualitatively at the bottom part of Figure \ref{ramsay-results}, the image plots do not show any evidence of leakage.
 
 
 \subsection{Peninsulae}
 
+The results from the modified Ramsay horseshoe are encouraging. However, as mentioned above, the problem is rather pathological and not particularly realistic. To further explore the performance of mdsds a more realistic domain (which attempts to mimic a coastline) was used. The domain is shown in Figure \ref{wt2-plot}.
+
+Again, simulations were run at a series of noise levels (BLAH equating to signal-to-noise ratios of BLAH). 
+
+
+
+
 \subsection{Aral sea}
 
-\subsection{Italy?}
+%\subsection{Italy?}
 
 \section{Discussion}
 \label{conclusion}
