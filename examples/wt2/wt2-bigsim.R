@@ -21,9 +21,8 @@ source("wt2-smooth-test.R")
 
 ######################################################
 # OPTIONS
-nsims<-1#200
+nsims<-200
 samp.sizes<-c(250,500)
-samp.sizes<-c(500)
 # noise levels = 0.35,0.9,1.55
 # snr = 0.95,0.75,0.50
 
@@ -93,5 +92,5 @@ for(samp.size in samp.sizes){
    }
 }
 # write the file...
-write.csv(big.res,file="wt2-res.csv",sep="")
+write.csv(big.res,file="wt2-res.csv")
 
