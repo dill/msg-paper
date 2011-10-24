@@ -1,7 +1,8 @@
 # make some boxplots
 library(ggplot2)
 
-pdf(file="wt2-results.pdf",width=13.3,height=7.88)
+#pdf(file="wt2-results.pdf",width=13.3,height=7.88)
+postscript(file="wt2-results.eps",width=13.3,height=7.88)
 
 # make the text look better for printout
 par(cex.axis=0.75,las=1,mgp=c(2,0.75,0),mar=c(2,3,1,1))
