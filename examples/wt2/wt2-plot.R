@@ -47,3 +47,4 @@ plot(grid.mds$points,cex=0.2,pch=19,asp=1)
 
 # copy out to eps
 dev.copy2eps(file="wt2-plot.eps",width=8,height=3)
+dev.copy2pdf(file="wt2-plot.pdf",width=8,height=3)

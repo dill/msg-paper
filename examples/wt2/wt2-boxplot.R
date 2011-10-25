@@ -20,7 +20,8 @@ p<-p+opts(panel.grid.major=theme_blank(),
           panel.background=theme_rect())
 print(p)
 
-ggsave(file="ramsay-result.eps",height=6,width=6)
+ggsave(file="wt2-result.eps",height=6,width=6)
+ggsave(file="wt2-result.pdf",height=6,width=6)
 
 ## plot the MDS projection dimension
 #dat<-dat[dat$model=="mdsds",]
