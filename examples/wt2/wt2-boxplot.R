@@ -13,15 +13,16 @@ dat<-dat[dat$n==500,]
 theme_set(theme_bw())
 p<-ggplot(dat)
 p<-p+geom_boxplot(aes(x=model,y=log(mse)))
-p<-p+facet_grid(noise~n)
+#p<-p+facet_grid(noise~n)
+p<-p+facet_wrap(~noise,nrow=1)
 p<-p+labs(x="Model",y="Logarithm of mean MSE per realisation")
 p<-p+opts(panel.grid.major=theme_blank(),
           panel.grid.minor=theme_blank(),
           panel.background=theme_rect())
 print(p)
 
-ggsave(file="wt2-result.eps",height=6,width=6)
-ggsave(file="wt2-result.pdf",height=6,width=6)
+ggsave(file="wt2-result.eps",height=4,width=6)
+ggsave(file="wt2-result.pdf",height=4,width=6)
 
 ## plot the MDS projection dimension
 #dat<-dat[dat$model=="mdsds",]
