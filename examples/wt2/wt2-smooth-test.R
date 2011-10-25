@@ -22,7 +22,7 @@ wt2_smooth_test<-function(samp.size=250,noise.level=0.05,plot.it=FALSE,
    fv.tp<-predict(b.tp,newdata=gendata)
 
    # fit MDS/Duchon 95%
-   mdsds<-gam.mds(gendata.samp,gendata,bnd,grid.res=120,gam.method="GCV.Cp")
+   mdsds<-gam.mds(gendata.samp,gendata,bnd,grid.res=120,gam.method="GCV.Cp",k=140)
    fv.mdsds<-mdsds$pred
 
    # soap
