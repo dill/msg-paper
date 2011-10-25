@@ -7,18 +7,21 @@ dat<-read.csv("ramsay-results.csv")
 dat<-dat[,-1]
 names(dat)<-c("model","noise","n","i","mse","mdsdim")
 
+dat<-dat[dat$n==600,]
 
 theme_set(theme_bw())
 p<-ggplot(dat)
 p<-p+geom_boxplot(aes(x=model,y=log(mse)))
-p<-p+facet_grid(noise~n)
+#p<-p+facet_grid(noise~n)
+p<-p+facet_wrap(~noise,nrow=1)
 p<-p+labs(x="Model",y="Logarithm of mean MSE per realisation")
 p<-p+opts(panel.grid.major=theme_blank(),
           panel.grid.minor=theme_blank(),
           panel.background=theme_rect())
 print(p)
 
-ggsave(file="ramsay-result.eps",height=6,width=6)
+ggsave(file="ramsay-result.eps",height=3.5,width=6)
+ggsave(file="ramsay-result.pdf",height=3.5,width=6)
 dev.off()
 
 # plot the MDS projection dimension
@@ -82,7 +85,7 @@ contour(z=im,x=xm,y=yn,levels=seq(-5,5,by=.25),add=TRUE,labcex=0.3,lwd=0.5)
 lines(fs.boundary(),lwd=2)
 
 dev.copy2eps(file="ramsay-real.eps",width=6,height=1.8)
-#dev.copy2pdf(file="ramsay-real.pdf",width=6,height=1.8)
+dev.copy2pdf(file="ramsay-real.pdf",width=6,height=1.8)
 
 
 # (paired) Wilcoxon signed rank test

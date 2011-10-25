@@ -101,38 +101,17 @@ plot.it<-function(dat,main.title){
    lines(bnd,lwd=2)
 }
 
-mds.fit<-gam.mds(aral.dat,pred.grid,bnd,grid.res=c(20,20),family=Gamma(link="log"),gam.method="GCV.Cp") 
+mds.fit<-gam.mds(aral.dat,pred.grid,bnd,grid.res=c(20,20),family=Gamma(link="log"),gam.method="GCV.Cp",k=70) 
 plot.it(mds.fit,"mdsds")
 
-#mds2<-gam.mds(aral.dat,pred.grid,bnd,grid.res=c(20,20))
-#plot.it(mds2,"mds 2D - tprs")
 
-# reset the mds dimension, so we can re-use Ds...
-#mds2$mds.dim<-NULL
-#mds2$m<-NULL
-#mds2$bs<-NULL
-#
-#mds3<-gam.mds(aral.dat,pred.grid,bnd,grid.res=c(20,20),mds.dim=3,old.obj=mds2,family=Gamma(link="log")) 
-#plot.it(mds3,"mds 3D - tprs")
-#
-#mds3.ds<-gam.mds(aral.dat,pred.grid,bnd,grid.res=c(20,20),mds.dim=3,m=c(2,3/2-1),bs="ds",old.obj=mds2,family=Gamma(link="log"))
-#plot.it(mds3.ds,"mds 3D - ds, s=0.5")
+#dev.copy2pdf(file="aral-plot.pdf",height=7,width=7)
+#dev.copy2eps(file="aral-plot.eps",height=7,width=7)
 
 
 
-
-### how does GCV vary with k
-#res<-c()
-#
-#for(expl in seq(2,22,by=1)){
-#   mds.pick<-gam.mds(aral.dat,pred.grid,bnd,grid.res=c(20,20),mds.dim=expl,bs="ds",old.obj=mds2,family=Gamma(link="log"))
-#   res<-rbind(c(expl,summary(mds.pick$gam)$sp.criterion),res)
-#}
-#
-#
-#
-#plot(res,xlab="MDS dimension",ylab="GCV Score",pch=19,cex=0.3)
-#abline(h=min(res[,2]),col="red")
+plot(mds.fit$gcv.dim,xlab="MDS projection dimension",ylab="GCV score",type="l")
 
 
-
+dev.copy2pdf(file="aral-gcvplot.pdf",height=6,width=6)
+dev.copy2eps(file="aral-gcvplot.eps",height=6,width=6)

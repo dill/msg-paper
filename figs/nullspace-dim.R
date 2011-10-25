@@ -21,8 +21,8 @@ pdf(file="nullspace-dim.pdf",width=3,height=5)
 par(mgp=c(1.5,0.75,0),mar=c(3,3,2,2),cex.axis=0.5,cex.lab=0.7)
 
 plot(x=d,y=seq(mmin,mmax,len=length(d)),type="n",xlab="Smoothing dimension (d)",ylab="Nullspace dimension (M)")
-lines(x=d,y=tprs.nullspace,col="blue")
-lines(x=d,y=duchon.nullspace,col="red")
+lines(x=d,y=tprs.nullspace,lty=2)
+lines(x=d,y=duchon.nullspace,lty=1)
 
 
 dev.off()
