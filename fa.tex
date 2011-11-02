@@ -192,9 +192,14 @@ This article addresses the problem of leakage in the additive model case. The me
 \section{Previous approaches to the problem of leakage}
 \label{previous-approaches}
 
-FELSPLINE (2002 and 2011)... LINK between... soap Marra et al!
+As mentioned above, previous approaches run along two lines: ($i$) those that deal with the boundary directly via creating a spline basis which respects certain boundary conditions or ($ii$) using a different metric for the measurement of distances in the domain. The first two methods described below are of the former type, the third is in the latter category.
 
-Wang and Ranalli .. link to Eilers
+Tim Ramsay first addressed the issue of leakage in the spline smoothing case in his 2002 paper. First introducing the finite area L-spline, or FELSPLINE, the article continues to show that by using a basis formed from finding the solution to PDEs via triangulation of the problem domain, a smooth which respects the boundary can be found. Problems with FELSPLINE where the gradient of the smooth must always be perpendicular to the boundary were pointed out in Wood et al (2008), this issue makes FELSPLINE a rather unappealing candidate.
+
+The work of Wood et al (2008) use a compelling physical analogy for their model: the soap film smoother. First consider the domain boundary to be made of wire, then dip this wire into a bucket of soapy water; a soap film with the same shape as the boundary will have then formed. Now consider the wire to lie in the spatial plane and the height of the soap film at a given point to be the functional value of the model. This film is then distorted smoothly by moving it vertically toward each datum locally, while minimizing the surface tension in the film as a whole. Mathematically this consists of solving Laplace and Poisson's equations with boundary conditions given by a cyclic spline along the boundary edge. The functions which are the solutions are then the basis functions used for smoothing. Although mathematically elegant, the soap film smoother is a rather complex (not to mention computationally expensive) model. The model also treats the boundary is something special, it is not clear that this is always appropriate (in particular thinking of ocean-based studies where some of the boundaries are coastlines but others are essentially arbitrary).
+
+Wang and Ranalli (2007) use thin plate splines but with the usual radial distances replaced by within-area distances. They choose to use the geodesic distance between two points, that being the shortest path within the domain. To calculate the distances, a complete, weighted, undirected, graph ($G$, say) is created with a data point at each vertex and the distance between each pair of vertices as the weights on the edges. They then find the restricted graph of $G$, $G_k$, in which each vertex is only connected to its $k$ nearest neighbours. With this new, restricted graph the geodesic distances between each pair of vertices can be calculated using Floyd's algorithm. As the authors point out, the quality of the approximation is dependent on the size of the data set and its density. At low densities the estimated geodesic distance will tend towards the Euclidean, at high densities the approximation tends, asymptotically toward the true geodesic distance (Bernstein et al, 2000). Even if  dense enough data were available, the method will be rather slow since Floyd's algorithm is cubic in the number of vertices (the size of the data set). 
+
 
 Lindesay and Carl's paper?
 
@@ -431,6 +436,8 @@ Sticking with the current algorithm, as seen in s, finding schemes for the layou
 
 
 \begin{thebibliography}{99}
+
+\bibitem{} Bernstein, M., V. de Silva, J.C. Langford, and J.B. Tenenbaum (2000). Graph approximations to geodesics on embedded manifolds. Technical report.
 
 \bibitem{} Boisvert, J.B., Manchuk,  J.G. and Deutsch, C.V. (2009). Kriging in the presence of locally varying anisotropy using non-{E}uclidean distances. \textit{Mathematical Geosciences} \textbf{41}, 585--601.
 

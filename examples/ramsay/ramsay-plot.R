@@ -68,21 +68,24 @@ im<-matrix(NA,m,n)
 
 par(mfrow=c(1,3),mar=c(1,1.5,1,1.5),mgp=c(1.5,0.75,0),oma=c(1,1,1,1))
 
+# mds
+im[onoff]<-dat2[3,]
+image(z=im,x=xm,y=yn,col=heat.colors(1000),main="mdsds",asp=1,xlab="",ylab="",zlim=c(-5,5),las=1,axes=FALSE)
+contour(z=im,x=xm,y=yn,levels=seq(-5,5,by=.25),add=TRUE,labcex=0.3,lwd=0.5)
+lines(fs.boundary(),lwd=2)
+
+# tprs
 im[onoff]<-dat2[1,]
 image(z=im,x=xm,y=yn,col=heat.colors(100),main="tprs",asp=1,xlab="",ylab="",zlim=c(-5,5),las=1, lwd=2,axes=FALSE)
 contour(z=im,x=xm,y=yn,levels=seq(-5,5,by=.25),add=TRUE,labcex=0.3,lwd=0.5)
 lines(fs.boundary(),lwd=2)
 
+# soap
 im[onoff]<-dat2[2,]
 image(z=im,x=xm,y=yn,col=heat.colors(1000),main="soap",asp=1,xlab="",ylab="",zlim=c(-5,5),las=1,axes=FALSE)
 contour(z=im,x=xm,y=yn,levels=seq(-5,5,by=.25),add=TRUE,labcex=0.3,lwd=0.5)
 lines(fs.boundary(),lwd=2)
 
-
-im[onoff]<-dat2[3,]
-image(z=im,x=xm,y=yn,col=heat.colors(1000),main="mdsds",asp=1,xlab="",ylab="",zlim=c(-5,5),las=1,axes=FALSE)
-contour(z=im,x=xm,y=yn,levels=seq(-5,5,by=.25),add=TRUE,labcex=0.3,lwd=0.5)
-lines(fs.boundary(),lwd=2)
 
 dev.copy2eps(file="ramsay-real.eps",width=6,height=1.8)
 dev.copy2pdf(file="ramsay-real.pdf",width=6,height=1.8)
