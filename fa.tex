@@ -123,7 +123,7 @@ $^{2}$Dept of Mathematical Sciences, University of Bath, Claverton Down, Bath BA
 \begin{abstract}
 This version: \today %Remove this before submitting!
 
-Spline smoothing is a popular technique for creating maps of a spatial phenomenon. Most smoothers use the Euclidean metric to measure the distance between data. This approach is flawed: phenomena do not conform to Euclidean geometry in their spatial distribution. Both natural and man-made barriers partition space and models should take this into account. Here we develop a finite area smoother which does not suffer from this problem when the shape of the area is complex. The method is based on preserving within-area distances using multidimensional scaling is developed. High dimensional projections of the data are necessary to avoid a loss of ordering in the points. To smooth reliably in high dimensions Duchon splines are used. The model developed rivals the current best finite area method in prediction error terms and fits easily into larger models.
+Spline smoothing is often used to create maps of a spatial phenomena; in this context, most smoothers use the Euclidean metric to measure the distance between data. This approach is flawed: phenomena do not conform to Euclidean geometry in their spatial distribution. Both natural and man-made barriers partition space and models should take this into account. Here we develop a finite area smoother which does not suffer from this problem when the shape of the area is complex. The method is based on preserving within-area distances using multidimensional scaling. High dimensional projections of the data are necessary to avoid a loss of ordering in the points. To smooth reliably in high dimensions Duchon splines are used. The model developed rivals the current best finite area method in prediction error terms and fits easily into larger models.
 \end{abstract}
 
 %  Please place your key words in alphabetical order, separated
@@ -166,7 +166,7 @@ Mathematically, we wish to model some response, $z_i$, as a smooth function of t
 \begin{equation*}
 z_i = f(x_{1i}, x_{2i}),
 \end{equation*}
-where $f$ is a sum of flexible basis functions. In order to avoid overfitting, a penalty based on integrating the squared derivatives of $f$ is calculated (see below). When normal errors are used the model is known as an additive model. The method described here can be used when the response has an exponential family distribution; the generalised addtive model case. Often smooths of spatial coordinates are used to explain autocorrelation in the data that may confound the actual relationships of interest. Here the focus is on simple smooths of spatial location, since these are the building blocks of the more complicated models.
+where $f$ is a sum of flexible basis functions. In order to avoid overfitting, a penalty based on integrating the squared derivatives of $f$ is calculated (see Section \ref{ss:duchon}). When normal errors are used the model is known as an additive model. The method described here can be used when the response has an exponential family distribution; the generalised addtive model case. Often smooths of spatial coordinates are used to explain autocorrelation in the data that may confound the actual relationships of interest. Here the focus is on simple smooths of spatial location, since these are the building blocks of the more complicated models.
 
 When the geographical region has a \emph{complex boundary}, features from one part of the domain can unduly influence other parts. Considering the boundary as a polygon, a complex boundary is a non-convex polygon, in particular when the non-convexity is relatively extreme. Often this consists of having some peninsula-like feature(s) in the domain with notably different observation values on either side of the feature. Given that there is some scientific motivation as to why those parts of the domain should not affect each other, features such as peninsulae give rise to a phenomenon known as \emph{leakage}.
 
@@ -192,7 +192,7 @@ This article addresses the problem of leakage in the additive model case. The me
 \section{Previous approaches to the problem of leakage}
 \label{previous-approaches}
 
-As mentioned above, previous approaches run along two lines: ($i$) those that deal with the boundary directly via creating a spline basis which respects certain boundary conditions or ($ii$) using a different metric for the measurement of distances in the domain. The first two methods described below are of the former type, the third is in the latter category.
+As mentioned above, previous approaches run along two lines: ($i$) those that deal with the boundary directly via creating a spline basis which respects certain boundary conditions or ($ii$) using a different metric for the measurement of distances in the domain. The first two methods described below are of the former type, the third and fourth all into this latter category.
 
 Tim Ramsay first addressed the issue of leakage in the spline smoothing case in his 2002 paper. First introducing the finite area L-spline, or FELSPLINE, the article continues to show that by using a basis formed from finding the solution to PDEs via triangulation of the problem domain, a smooth which respects the boundary can be found. Problems with FELSPLINE where the gradient of the smooth must always be perpendicular to the boundary were pointed out in Wood et al (2008), this issue makes FELSPLINE a rather unappealing candidate.
 
@@ -200,11 +200,10 @@ The work of Wood et al (2008) use a compelling physical analogy for their model:
 
 Wang and Ranalli (2007) use thin plate splines but with the usual radial distances replaced by within-area distances. They choose to use the geodesic distance between two points, that being the shortest path within the domain. To calculate the distances, a complete, weighted, undirected, graph ($G$, say) is created with a data point at each vertex and the distance between each pair of vertices as the weights on the edges. They then find the restricted graph of $G$, $G_k$, in which each vertex is only connected to its $k$ nearest neighbours. With this new, restricted graph the geodesic distances between each pair of vertices can be calculated using Floyd's algorithm. As the authors point out, the quality of the approximation is dependent on the size of the data set and its density. At low densities the estimated geodesic distance will tend towards the Euclidean, at high densities the approximation tends, asymptotically toward the true geodesic distance (Bernstein et al, 2000). Even if  dense enough data were available, the method will be rather slow since Floyd's algorithm is cubic in the number of vertices (the size of the data set). 
 
+Scott-Hayward et al. (????) improve on GLTPS by first modifying the starting graph such that only those point pairs whose paths do not cross boundary have edges running between them and second by using a set of local radial basis functions in place of the global basis function usually used with thin plate splines (the usual global linear trends are also removed). The modification is based on selecting a rescaling of the radial distances; rather than selecting one rescaling, models with varying rescalings are averages with weights assigned according to weighted AIC$_\text{c}$. [[TKTKTK faults? Do they use the ridge regression approach for smoothing?]]
 
-Lindesay and Carl's paper?
+All of the above methods require that knots be selected. Our method uses the eigendecomposition method of Wood (2003) and thus avoids the knot selection problem, removing some of the subjectivity in model specification.
 
-
-Say something about investigation of SC methods, REF thesis
 
 \section{Model definition}
 \label{proposed-model}
@@ -219,7 +218,7 @@ Biological populations respect the intrinsic structure of these domains and in g
 
 By using within-area distances, we encapsulate information about the boundary into the model in an implicit way (in contrast to Wood et al, 2008 and Ramsay, 2002) so that the boundary enters the model via the points rather than as a special structure.
 
-The procedure to fit the model is as follows: given the sample locations $\mathbf{x}_i = (x_{1i}, x_{2i})$  of the $i^\text{th}$ point with response $z_i$ (in general $\mathbf{x}_i$ could be $k$-vector, although 2-vectors of geographical coordinates are used throughout this chapter). Then:
+[[TKTKTK fix this! How big are the vectors??]] The procedure to fit the model is as follows: given the sample locations $\mathbf{x}_i = (x_{1i}, x_{2i})$  of the $i^\text{th}$ point with response $z_i$ (in general $\mathbf{x}_i$ could be $k$-vector, although 2-vectors of geographical coordinates are used throughout this chapter). Then:
 \begin{enumerate}
 \item Obtain the MDS configuration for the domain using some representative set of points over the area in question. The only use of the MDS locations obtained in this step is to find the initial MDS configuration; they are discarded afterward. Representative points could be a sparse grid over the domain or a subset of $\{\mathbf{x}_i : i=1\dots n\}$. More detail and justification is provided in Appendix A.
 \item Using the MDS configuration obtained above along with Gower's interpolation (Gower, 1968, see Appendix A) to obtain the location of the sample in the MDS configuration: $\{\mathbf{x}_i^*, z_i : i=1\dots n\}$.
@@ -232,6 +231,7 @@ Here, finding an MDS configuration of a set of points consists of: $i$) calculat
 Preliminary experiments were carried out using a 2-dimensional projection of the distance matrix. Figure \ref{wt2-plot} shows that when a domain with peninsulae is projected using MDS with within-area distances, the resulting point configuration appears squashed. This can actually cause the ordering of the points to be lost, making the task of the smoother impossible. Further investigation shows that in higher dimensions the projection maintains the ordering of the points while avoiding leakage.
 
 \subsection{Smoothing with Duchon splines}
+\label{ss:duchon}
 
 In the preceding investigations, the thin plate regression splines of Wood (2003) were used. This formulation has many nice properties: they are eigen-based and do not require knot selection, they are isotropic, they are relatively fast to fit and they are implemented in software (the \texttt{mgcv} package for \textsf{R}). However, high-dimensional smoothing using thin plate regression splines can be rather tricky, this is because the size of the nullspace (the functions which make up the spline that are not penalised) is a function of the smoothing dimension. This leads to a model containing a large set of unpenalised functions which can lead to overfitting.
 
@@ -304,16 +304,12 @@ Note that the eigen-decomposition technique for avoiding knot selection for thin
 
 Given that the use of Duchon splines allows for reliable high dimensional smoothing, there is only one remaining issue to address. How many dimensions should the points be projected into. Setting the number of dimensions to project into to be the same for every domain surely seems like a recipe for disaster since even if this number of dimensions was set high enough to be acceptable for all domains, there would be some, simpler domains for which this would be far too high, wasting computational time. One option would be to select the number of dimensions according to the proportion of variation in the distances explained by the projection, however this too is somewhat subjective.
 
-Rather than using either of the above methods, the GCV score was used. This exploits the fact that the time-consuming part of model fitting is the calculation of the within-area distances; fitting the model is cheap. So, fitting a series of models for projections from 2-dimensional upwards does not take significantly longer than fitting a single model, once the within-area distances have been calculated. Once a set of GCV scores have been calculated, the dimension which gives the lowest GCV is used as the final model. There is no particular reason to think that the score should be unimodal in the number of dimensions, so a full search is performed. In practise an upper bound of the number of dimensions that explained 95\% of the variation in the distances was used in the analyses shown below.
-
-[[figure of score/dimension??]]
-
-[[ML not so good, REML can't be used]]
+Rather than using either of the above methods, the GCV score was used. This exploits the fact that the time-consuming part of model fitting is the calculation of the within-area distances; fitting the model is cheap. So, fitting a series of models for projections from 2-dimensional upwards does not take significantly longer than fitting a single model, once the within-area distances have been calculated. Once a set of GCV scores have been calculated, the dimension which gives the lowest GCV is used as the final model. Figure \ref{aral-gcvplot} shows the relationship between projection dimension and GCV score for the Aral sea data analysed below. There is no particular reason to think that the score should be unimodal in the number of dimensions, so a full search is performed. In practise an upper bound of the number of dimensions that explained 95\% of the variation in the distances was used in the analyses shown below. Note that other criteria could be used; however, the REML score (Wood, 2011) is not suitable since the fixed effects of the model will change with the increasing dimension. The ML score is suitable but GCV score performed better in both simulation and practise; for that reason only GCV score is used in the examples in the next section.
 
 \section{Examples}
 \label{examples}
 
-To illustrate the utility of the model two simulation studies are shown, followed an examples using real data. In each case MDSDS was compared with thin plate splines (which do not account for the boundary) and the soap film smoother (which does). In all cases smoothing parameters were selected by GCV. The \textsf{R} packages \texttt{mgcv}, \text{soap} and \text{msg} were used to fit the models.
+To illustrate the utility of the model two simulation studies are shown, followed an examples using real data. In each case MDSDS was compared with thin plate splines (which do not account for the boundary) and the soap film smoother (which does). In all cases smoothing parameters were selected by GCV. The \textsf{R} packages \texttt{mgcv}, \texttt{soap} [[TKTKTK available from URL]] and \texttt{msg} (available from \url{http://github.com/dill/msg}) were used to fit the models.
 
 \subsection{Ramsay's horseshoe}
 
@@ -388,7 +384,7 @@ The models were then used to predict over a grid of 496 points to create the hea
 
 This article has investigated a problem which arises when smoothing in a finite area when the boundary is a complex shape: leakage. We proposed a new solution to this problem for the additive and generalized additive model framework using a combination of multidimensional scaling, within-area distances and the Duchon spline basis. In comparison with the current ``best' approach (soap film smoothing) MDSDS was found to be competitive in MSE terms.
 
-Initial investigations looked the the utility of the Schwarz-Christoffel transformation (SC BOOK REF) as suggested by Eilers (Munich seminar). However it was soon found that such a functional based mapping (from some arbitrary polygon defining the boundary of the domain to a rectangle) was far to prescriptive and did not allow for the flexibility necessary for a domain transformation approach. The Schwarz-Christoffel transform failed to preserve the distances between objects, causing artefacts (while it was able to separate parts of the domain, avoiding leakage). An MDS approach preserves the between-point distances, since these are encoded in the distance matrix. The discovery that 2-dimensional projections produced by MDS can cause the ordering of the points to be lost explained the poor performance of the model up to that point. These problems were overcome by projecting into higher dimensions and using Duchon splines to perform reliable high dimensional smoothing.
+Initial investigations looked the the utility of the Schwarz-Christoffel transformation (TKTKTK SC BOOK REF) as suggested by Paul Eilers (in a seminar at University of Munich). However it was soon found that such a functional based mapping (from some arbitrary polygon defining the boundary of the domain to a rectangle) was far to prescriptive and did not allow for the flexibility necessary for a domain transformation approach. The Schwarz-Christoffel transform failed to preserve the distances between objects, causing artefacts (while it was able to separate parts of the domain, avoiding leakage). Using MDS preserves the between-point distances, since these are encoded in the distance matrix. The discovery that 2-dimensional projections produced by MDS can cause the ordering of the points to be lost explained the poor performance of the model up to that point. These problems were overcome by projecting into higher dimensions and using Duchon splines to perform reliable high dimensional smoothing.
 
 
 
@@ -396,7 +392,7 @@ Initial investigations looked the the utility of the Schwarz-Christoffel transfo
 
 Although the use of MDS transformations to aid smoothing using additive and generalised additive models as presented here is new, the approach has been addressed in the kriging literature previously. This section reviews the contributions made so far and compares them to the work in this article.
 
-Kriging  (see Venables and Ripley, 2002, pp. 425-430 for a concise introduction, Schabenberger and Gotway, 2005 or Diggle and Ribiero, 2007 for a thorough treatment) consists of modelling the spatial correlation between points via the \textit{semivariogram} and a spatial trend via a mean function (similar to the linear predictor in the smoothing case, although there are flavours of kriging where the mean is considered constant and/or known). Semivariogram models assume that the correlation between points is related to the distance between the points but not their position (this is known as \textit{stationarity}, and comes in varying degrees, Schabenberger and Gotway, 2005, pp. 42-44). Although not specifically designed to deal with leakage issues (although leakage manifests itself as a breakdown of stationarity in a kriging context), several authors have suggested the use of some kind of transformation of the data points in space in order to maintain stationarity by approximating within-area distances with equivalent Euclidean distances via multidimensional scaling.
+Kriging  (see Venables and Ripley, 2002, pp. 425--430 for a concise introduction; Schabenberger and Gotway, 2005 or Diggle and Ribiero, 2007 for a thorough treatment) consists of modelling the spatial correlation between points via the semivariogram and a spatial trend via a mean function (similar to the linear predictor in the smoothing case, although there are flavours of kriging where the mean is considered constant and/or known). Semivariogram models assume that the correlation between points is related to the distance between the points but not their position (this is known as stationarity, and comes in varying degrees, Schabenberger and Gotway, 2005, pp. 42-44). Although not specifically designed to deal with leakage issues (although leakage manifests itself as a breakdown of stationarity in a kriging context), several authors have suggested the use of some kind of transformation of the data points in space in order to maintain stationarity by approximating within-area distances with equivalent Euclidean distances via multidimensional scaling.
 
 Kriging is focused on the explicit modelling of the correlations between points in space as a function of the distance between them via the estimation of the semivariogram. It is therefore logical that in, say, a river system the distances between points are calculated along the river's course rather than the Euclidean distance. 
 
@@ -406,29 +402,35 @@ In general kriging methods suffer from having developed as an \textit{ad hoc} se
 
 \subsection{Further work}
 
-As it stands distance generation is seen as a black box procedure to the model. This means that any procedure that can generate a distance matrix can be used. Instead of using the algorithm given in Appendix B, an algorithm that uses a discretisation of space could be used (for example, the A$^*$ algorithm, Hart, Nilsson and Raphael, 1968). The examples presented here only consider smoothing inside of simple polygons since the within-area distance algorithm given in Appendix B can only find shortest paths inside such shapes. This excludes domains with islands in them, which can occur in ship-board studies. This could be worked-around using other shortest path algorithms, however the behaviour of MDS (especially in higher dimensions) in such situations is unknown. 
+As it stands distance generation is seen as a black box procedure to the model. This means that any procedure that can generate a distance matrix can be used. Instead of using the algorithm given in Appendix B, an algorithm that uses a discretisation of space could be used (for example the A$^*$ algorithm; Hart, Nilsson and Raphael, 1968). The examples presented here only consider smoothing inside of simple polygons since the within-area distance algorithm given in Appendix B can only find shortest paths inside such shapes. This excludes domains with islands in them, which can occur in ship-board studies. This could be worked-around using other shortest path algorithms, however the behaviour of MDS (especially in higher dimensions) in such situations is unknown. 
 
 It might also be interesting to investigate other measures in the distance matrix. Moving into three dimensions could be useful, finding the shortest path over say a mountain range, which would include minimising changes in altitude as well as avoiding obstacles. Alternatively, a cost based distance approach that takes into account fuel cost or taking into account difficult conditions (e.g. a bog or ford that can be crossed but at additional cost in terms of effort or time). One issue with such general cost-distance approach might be that the ``distance'' measure could turn out to be non-metric. That is, that the distance from A to B is not the same as the distance from B to A (for example going against versus going with the flow of a river). In this case non-metric MDS must be used, this relies only on the rankings of the data and discards other information, which is probably undesirable.
 
-SUM UP HERE
+[[TKTKTK SUM UP HERE]]
 
 
 \section*{Acknowledgements}
 
+David wishes to thank EPSRC for financial support during his PhD.
 
 
 % Appendices
-\section*{Appendix A - Using starting grids for stable MDS insertion}
+\section*{Appendix A - Using starting grids for stable MDS projection}
 
-Gower's interpolation!
+In many applications of MDS the points are simply projected and no further points are added to the resulting configuration. However in the situations discussed here, there are at least two phases in the procedure. First the data which have been collected are projected and second prediction points must also be projected. Assuming that these sets of points are not identical, it is essential for the two to have the same coordinate systems for reliable inference to be performed. Gower (1968) proposes a method for inserting new points into an existing MDS configuration.
 
+Gower shows that performing MDS on a dataset is equivalent to performing MDS on a reduced set of points and then inserting the remaining points. However in the within-area distance case there can the potential problems if the reduced set of points does not encapsulate enough information about the domain. The only place that the boundary enters the model is through the MDS configuration and in turn, the MDS configuration's only influence from the boundary is via the distances in $\mathbf{D}$. In a spatial setting one can imagine the case in which samples were not taken from one part of the domain of interest (for example, there may be no observations in a particular peninsulae) and in that case the resulting MDS configuration would differ from a configuration when data from the whole domain was used. Ensuring that different analyses on the same domain of interest yield consistent results is extremely important.
+
+When Euclidean distances are used to calculate $\mathbf{D}$, the criterion needed so that the resulting space is the same (in the sense given above, that insertion into a reduced point set is the same as mapping the complete point set) is that there is one more point used to create the MDS configuration than there are dimensions in the space in which they reside (provided the points are not collinear) (cite landmark). There is no similar criteria for within-area distances and it is unclear what form such a criterion would take.
+
+This problem can be rectified by using an appropriately spaced grid over the domain to calculate the eigen-decomposition, thus ensuring that the whole domain is covered. Provided that the grid is fine enough to catch all of the important features in the boundary of the domain, the problems above should not arise.
 
 \section*{Appendix B - Algorithm for the calculation of within-area distances}
 
 remember to include the speed-up stuff
 
 
-Sticking with the current algorithm, as seen in s, finding schemes for the layout of starting grids and perhaps adapting the methods described in L{\o}land and H{\o}st (2003) to approximate the distances using a triangulation, would certainly increase performance (although perhaps at the price of accuracy).
+Sticking with the current algorithm, finding schemes for the layout of starting grids and perhaps adapting the methods described in L{\o}land and H{\o}st (2003) to approximate the distances using a triangulation, would certainly increase performance (although perhaps at the price of accuracy).
 
 
 
@@ -472,6 +474,8 @@ Sticking with the current algorithm, as seen in s, finding schemes for the layou
 \bibitem{} Ramsay, T. (2002). Spline smoothing over difficult regions. \textit{Journal of the Royal Statistical Society: Series B} \textbf{64}(2), 307--19.
 
 \bibitem{} Ruppert, D., Wand, M.P. and Carroll, R.J. (2003). \textit{Semiparametric Regression}. Cambridge University Press.
+
+\bibitem{} Scott-Hayward, L.A.S., Mackenzie, M.L., Donovan, C.R., Walker, C.G. and Ashe, E. (????) Complex Region Spatial Smoother (CReSS). \textit{A Journal}.
 
 \bibitem{} Shabenberger, O. and Gotway, C.A. (2005). \textit{Statistical methods for spatial data analysis}. CRC Press.
 
