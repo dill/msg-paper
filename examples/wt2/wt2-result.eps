@@ -10,7 +10,7 @@
 %%BoundingBox: 0 0 432 288
 %%EndComments
 %%BeginProlog
-/bp  { gs gs } def
+/bp  { gs sRGB gs } def
 % begin .ps.prolog
 /gs  { gsave } bind def
 /gr  { grestore } bind def
@@ -36,6 +36,9 @@
 /cl  { grestore gsave newpath 3 index 3 index moveto 1 index
        4 -1 roll lineto  exch 1 index lineto lineto
        closepath clip newpath } bind def
+/rgb { setrgbcolor } bind def
+/s   { scalefont setfont } bind def
+% end   .ps.prolog
 /sRGB { [ /CIEBasedABC
           << /DecodeLMN
                [ { dup 0.03928 le
@@ -50,9 +53,7 @@
              /WhitePoint [0.9505 1.0 1.0890]
            >>
          ] setcolorspace } bind def
-/s   { scalefont setfont } bind def
-% end   .ps.prolog
-/srgb { sRGB setcolor } bind def
+/srgb { setcolor } bind def
 %%IncludeResource: font Helvetica
 /Helvetica findfont
 dup length dict begin
@@ -111,11 +112,11 @@ bp
 0.00 0.00 432.00 288.00 cl
 0.00 0.00 432.00 288.00 cl
 /Font1 findfont 12 s
-0 setgray
+0 0 0 srgb
 216.71 14.40 (Model) .5 0 t
 0.00 0.00 432.00 288.00 cl
 /Font1 findfont 12 s
-0 setgray
+0 0 0 srgb
 19.42 44.27 (Logar) 90 ta
 0.180 (ithm of mean MSE per realisation) tb gr
 0.00 0.00 432.00 288.00 cl
@@ -195,7 +196,7 @@ bp
 0.00 0.00 432.00 288.00 cl
 0.00 0.00 432.00 288.00 cl
 /Font1 findfont 10 s
-0 setgray
+0 0 0 srgb
 42.76 60.46 (-3.5) 1 0 t
 42.76 87.11 (-3.0) 1 0 t
 42.76 113.76 (-2.5) 1 0 t
@@ -204,7 +205,7 @@ bp
 42.76 193.72 (-1.0) 1 0 t
 42.76 220.38 (-0.5) 1 0 t
 0.00 0.00 432.00 288.00 cl
-0 setgray
+0 0 0 srgb
 0.43 setlinewidth
 [] 0 setdash
 1 setlinecap
@@ -246,8 +247,8 @@ o
 23.02 23.02 54.28 26.62 cl
 0.00 0.00 432.00 288.00 cl
 54.28 259.22 169.38 273.60 cl
-/bg { 0.8000 setgray } def
-0.4980 setgray
+/bg { 0.8000 0.8000 0.8000 srgb } def
+0.4980 0.4980 0.4980 srgb
 1.06 setlinewidth
 [] 0 setdash
 1 setlinecap
@@ -255,23 +256,23 @@ o
 10.00 setmiterlimit
 54.28 259.22 115.11 14.38 r p3
 /Font1 findfont 10 s
-0 setgray
+0 0 0 srgb
 111.83 262.82 (0.35) .5 0 t
 0.00 0.00 432.00 288.00 cl
 54.28 45.32 169.38 259.22 cl
-0 setgray
+0 0 0 srgb
 1.06 setlinewidth
 [] 0 setdash
 1 setlinecap
 1 setlinejoin
 10.00 setmiterlimit
 54.28 45.32 115.11 213.90 r p1
-/bg { 0 setgray } def
+/bg { 0 0 0 srgb } def
 74.70 106.28 2.13 c p2
 74.70 227.75 2.13 c p2
 74.70 97.45 2.13 c p2
 74.70 190.25 2.13 c p2
-0.2000 setgray
+0.2000 0.2000 0.2000 srgb
 0 setlinecap
 1.00 setmiterlimit
 np
@@ -282,7 +283,7 @@ np
 74.70 69.56 m
 0 -14.52 l
 o
-/bg { 1 setgray } def
+/bg { 1 1 1 srgb } def
 10.00 setmiterlimit
 60.77 69.56 27.85 10.70 r p3
 60.77 74.94 27.85 0.00 r p3
@@ -298,7 +299,7 @@ o
 10.00 setmiterlimit
 97.91 69.58 27.85 10.82 r p3
 97.91 75.56 27.85 0.00 r p3
-/bg { 0 setgray } def
+/bg { 0 0 0 srgb } def
 148.96 135.67 2.13 c p2
 148.96 135.20 2.13 c p2
 148.96 123.56 2.13 c p2
@@ -312,22 +313,22 @@ np
 148.96 90.42 m
 0 -11.90 l
 o
-/bg { 1 setgray } def
+/bg { 1 1 1 srgb } def
 10.00 setmiterlimit
 135.04 90.42 27.85 13.11 r p3
 135.04 96.40 27.85 0.00 r p3
-0.4980 setgray
+0.4980 0.4980 0.4980 srgb
 1 setlinecap
 54.28 45.32 115.11 213.90 r p1
 0.00 0.00 432.00 288.00 cl
 0.00 0.00 432.00 288.00 cl
 /Font1 findfont 10 s
-0 setgray
+0 0 0 srgb
 74.70 26.62 (mdsds) .5 0 t
 111.83 26.62 (soap) .5 0 t
 148.96 26.62 (tprs) .5 0 t
 0.00 0.00 432.00 288.00 cl
-0 setgray
+0 0 0 srgb
 0.43 setlinewidth
 [] 0 setdash
 1 setlinecap
@@ -367,8 +368,8 @@ o
 172.98 23.02 172.98 26.62 cl
 0.00 0.00 432.00 288.00 cl
 172.98 259.22 288.09 273.60 cl
-/bg { 0.8000 setgray } def
-0.4980 setgray
+/bg { 0.8000 0.8000 0.8000 srgb } def
+0.4980 0.4980 0.4980 srgb
 1.06 setlinewidth
 [] 0 setdash
 1 setlinecap
@@ -376,24 +377,24 @@ o
 10.00 setmiterlimit
 172.98 259.22 115.11 14.38 r p3
 /Font1 findfont 10 s
-0 setgray
+0 0 0 srgb
 230.54 262.82 (0.90) .5 0 t
 0.00 0.00 432.00 288.00 cl
 172.98 45.32 288.09 259.22 cl
-0 setgray
+0 0 0 srgb
 1.06 setlinewidth
 [] 0 setdash
 1 setlinecap
 1 setlinejoin
 10.00 setmiterlimit
 172.98 45.32 115.11 213.90 r p1
-/bg { 0 setgray } def
+/bg { 0 0 0 srgb } def
 193.41 151.10 2.13 c p2
 193.41 178.43 2.13 c p2
 193.41 240.44 2.13 c p2
 193.41 211.25 2.13 c p2
 193.41 166.82 2.13 c p2
-0.2000 setgray
+0.2000 0.2000 0.2000 srgb
 0 setlinecap
 1.00 setmiterlimit
 np
@@ -404,11 +405,11 @@ np
 193.41 110.96 m
 0 -16.07 l
 o
-/bg { 1 setgray } def
+/bg { 1 1 1 srgb } def
 10.00 setmiterlimit
 179.48 110.96 27.85 15.17 r p3
 179.48 119.03 27.85 0.00 r p3
-/bg { 0 setgray } def
+/bg { 0 0 0 srgb } def
 230.54 152.21 2.13 c p2
 230.54 147.47 2.13 c p2
 230.54 155.81 2.13 c p2
@@ -421,11 +422,11 @@ np
 230.54 117.64 m
 0 -14.71 l
 o
-/bg { 1 setgray } def
+/bg { 1 1 1 srgb } def
 10.00 setmiterlimit
 216.61 117.64 27.85 11.67 r p3
 216.61 122.68 27.85 0.00 r p3
-/bg { 0 setgray } def
+/bg { 0 0 0 srgb } def
 267.67 169.71 2.13 c p2
 267.67 172.63 2.13 c p2
 267.67 165.77 2.13 c p2
@@ -438,22 +439,22 @@ np
 267.67 136.51 m
 0 -15.38 l
 o
-/bg { 1 setgray } def
+/bg { 1 1 1 srgb } def
 10.00 setmiterlimit
 253.75 136.51 27.85 11.48 r p3
 253.75 142.29 27.85 0.00 r p3
-0.4980 setgray
+0.4980 0.4980 0.4980 srgb
 1 setlinecap
 172.98 45.32 115.11 213.90 r p1
 0.00 0.00 432.00 288.00 cl
 0.00 0.00 432.00 288.00 cl
 /Font1 findfont 10 s
-0 setgray
+0 0 0 srgb
 193.41 26.62 (mdsds) .5 0 t
 230.54 26.62 (soap) .5 0 t
 267.67 26.62 (tprs) .5 0 t
 0.00 0.00 432.00 288.00 cl
-0 setgray
+0 0 0 srgb
 0.43 setlinewidth
 [] 0 setdash
 1 setlinecap
@@ -493,8 +494,8 @@ o
 291.69 23.02 291.69 26.62 cl
 0.00 0.00 432.00 288.00 cl
 291.69 259.22 406.80 273.60 cl
-/bg { 0.8000 setgray } def
-0.4980 setgray
+/bg { 0.8000 0.8000 0.8000 srgb } def
+0.4980 0.4980 0.4980 srgb
 1.06 setlinewidth
 [] 0 setdash
 1 setlinecap
@@ -502,25 +503,25 @@ o
 10.00 setmiterlimit
 291.69 259.22 115.11 14.38 r p3
 /Font1 findfont 10 s
-0 setgray
+0 0 0 srgb
 349.25 262.82 (1.55) .5 0 t
 0.00 0.00 432.00 288.00 cl
 291.69 45.32 406.80 259.22 cl
-0 setgray
+0 0 0 srgb
 1.06 setlinewidth
 [] 0 setdash
 1 setlinecap
 1 setlinejoin
 10.00 setmiterlimit
 291.69 45.32 115.11 213.90 r p1
-/bg { 0 setgray } def
+/bg { 0 0 0 srgb } def
 312.11 226.24 2.13 c p2
 312.11 182.89 2.13 c p2
 312.11 179.90 2.13 c p2
 312.11 249.50 2.13 c p2
 312.11 200.84 2.13 c p2
 312.11 203.24 2.13 c p2
-0.2000 setgray
+0.2000 0.2000 0.2000 srgb
 0 setlinecap
 1.00 setmiterlimit
 np
@@ -531,11 +532,11 @@ np
 312.11 143.40 m
 0 -20.29 l
 o
-/bg { 1 setgray } def
+/bg { 1 1 1 srgb } def
 10.00 setmiterlimit
 298.19 143.40 27.85 14.36 r p3
 298.19 149.49 27.85 0.00 r p3
-/bg { 0 setgray } def
+/bg { 0 0 0 srgb } def
 349.25 194.56 2.13 c p2
 349.25 193.82 2.13 c p2
 1.00 setmiterlimit
@@ -547,11 +548,11 @@ np
 349.25 143.76 m
 0 -23.62 l
 o
-/bg { 1 setgray } def
+/bg { 1 1 1 srgb } def
 10.00 setmiterlimit
 335.32 143.76 27.85 16.19 r p3
 335.32 151.26 27.85 0.00 r p3
-/bg { 0 setgray } def
+/bg { 0 0 0 srgb } def
 386.38 139.72 2.13 c p2
 1.00 setmiterlimit
 np
@@ -562,22 +563,22 @@ np
 386.38 165.12 m
 0 -16.17 l
 o
-/bg { 1 setgray } def
+/bg { 1 1 1 srgb } def
 10.00 setmiterlimit
 372.45 165.12 27.85 13.72 r p3
 372.45 171.56 27.85 0.00 r p3
-0.4980 setgray
+0.4980 0.4980 0.4980 srgb
 1 setlinecap
 291.69 45.32 115.11 213.90 r p1
 0.00 0.00 432.00 288.00 cl
 0.00 0.00 432.00 288.00 cl
 /Font1 findfont 10 s
-0 setgray
+0 0 0 srgb
 312.11 26.62 (mdsds) .5 0 t
 349.25 26.62 (soap) .5 0 t
 386.38 26.62 (tprs) .5 0 t
 0.00 0.00 432.00 288.00 cl
-0 setgray
+0 0 0 srgb
 0.43 setlinewidth
 [] 0 setdash
 1 setlinecap
