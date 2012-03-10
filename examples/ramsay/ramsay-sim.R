@@ -3,15 +3,21 @@
 #  1 - tprs
 #  2 - soap film
 #  3 - mdsds
+#  4 - gltps (a la Wang and Ranalli)
 
 library(mgcv)
 library(soap)
 library(msg)
+library(fields)
+
+# source in the files for W+R
+source("wr-wrapper.R")
+source("tps.R")
+
 
 # let's do this in parallel!
 library(doMC)
 library(foreach)
-
 options(cores=6)
 registerDoMC()
 
@@ -79,6 +85,17 @@ for(noise.level in noise.levels){
                           gam.method="GCV.Cp") 
          this.res<-rbind(this.res,c("mdsds",noise.level,sample.size,j,
                          mean((mds.fit$pred-fs.data$z)^2),mds.fit$mds.dim))
+
+
+         # fit W+R
+         n.knots<-40 # as in the paper
+         xk<-cover.design(matrix(c(samp$x,samp$y),length(samp$x),2),n.knots)
+         xk<-matrix(c(xk[,1],xk[,2]),length(xk[,1]),2)
+         beta.wr<-wr(samp,list(x=xk[,1],y=xk[,2]),fs.bnd)
+         pred.wr<-wr.pred(pred.data,
+                          list(x=xk[,1],y=xk[,2]),beta.wr,fs.bnd)
+         this.res<-rbind(this.res,c("wr",noise.level,sample.size,j,
+                         mean((pred.wr-fs.data$z)^2),0))
 
          this.res
       }
