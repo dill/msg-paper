@@ -4,11 +4,6 @@ library(mgcv)
 library(soap)
 library(msg)
 
-## options
-noise.levels<-c(0.1,1,10) # as in soap paper
-sample.sizes<-c(100, 300, 600) # 600 used in soap paper
-
-
 ## Initialisation
 # make the horseshoe boundary
 bnd <- fs.boundary()
@@ -35,8 +30,8 @@ knots<-list(x=knots$x[knots.ind],y=knots$y[knots.ind])
 rm(xx,yy,m,n,bnd)
 
 # simulation time!
-noise.level<-noise.levels[2]
-sample.size<-sample.sizes[2]
+noise.level<-1
+sample.size<-600
 
 # make the sample
 samp.ind<-sample(1:length(fs.data$x),sample.size)
@@ -56,8 +51,11 @@ fv.soap<-predict(b.soap,newdata=pred.data,block.size=-1)
 mds.fit<-gam.mds(samp,pred.data,fs.bnd,grid.res=c(20,20),
                  gam.method="GCV.Cp") 
 
+# truth
+truth<-fs.test(pred.data$x,pred.data$y)
+
 # squish them together
-preds<-rbind(fv.tprs,fv.soap,mds.fit$pred)
+preds<-rbind(fv.tprs,fv.soap,mds.fit$pred,truth)
 
 write.csv(preds,"ramsay-ex.csv")
 
