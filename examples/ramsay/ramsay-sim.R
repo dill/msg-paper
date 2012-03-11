@@ -13,6 +13,7 @@ library(fields)
 # source in the files for W+R
 source("wr-wrapper.R")
 source("tps.R")
+source("pe.R")
 
 
 # let's do this in parallel!
