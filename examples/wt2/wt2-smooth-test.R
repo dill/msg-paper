@@ -30,10 +30,19 @@ wt2_smooth_test<-function(samp.size=250,noise.level=0.05,plot.it=FALSE,
                knots=soap.knots,data=gendata.samp)
    fv.soap <- predict(b.soap,newdata=gendata)
 
+   # fit W+R
+   n.knots<-80 # as in the paper
+   xk<-cover.design(matrix(c(gendata.samp$x,gendata.samp$y),
+                           length(gendata.samp$x),2),n.knots)
+   xk<-matrix(c(xk[,1],xk[,2]),length(xk[,1]),2)
+   beta.wr<-wr(gendata.samp,list(x=xk[,1],y=xk[,2]),bnd)
+   pred.wr<-wr.pred(gendata,list(x=xk[,1],y=xk[,2]),beta.wr,bnd)
+
    ### calculate MSEs
    mses<-c(mean((fv.tp-gendata$z)^2,na.rm=T), 
            mean((fv.mdsds-gendata$z)^2,na.rm=T), 
            mean((fv.soap-gendata$z)^2,na.rm=T),
+           mean((pred.wr-gendata$z)^2,na.rm=T),
            mdsds$mds.dim) 
 
 

@@ -2,6 +2,10 @@
 # David Lawrence Miller 2009-2011.
 
 library(msg)
+library(fields)
+source("../ramsay/wr-wrapper.R")
+source("../ramsay/tps.R")
+source("../ramsay/pe.R")
 
 # parallel options
 library(doMC)
@@ -21,7 +25,7 @@ source("wt2-smooth-test.R")
 
 ######################################################
 # OPTIONS
-nsims<-200
+nsims<-1#200
 samp.sizes<-c(250,500)
 # noise levels = 0.35,0.9,1.55
 # snr = 0.95,0.75,0.50
@@ -82,11 +86,11 @@ for(samp.size in samp.sizes){
                                 gendata,bnd,soap.knots)
          #res.mse[i,]<-res
          res<-rbind(c("tprs",noise.level,samp.size,j,res[1],NA),
-                    c("mdsds",noise.level,samp.size,j,res[2],res[4]),
-                    c("soap",noise.level,samp.size,j,res[3],NA)
+                    c("mdsds",noise.level,samp.size,j,res[2],res[5]),
+                    c("soap",noise.level,samp.size,j,res[3],NA),
+                    c("wr",noise.level,samp.size,j,res[4],NA)
                    )
       }
-#result<-res      
       big.res<-rbind(big.res,result)
       
    }

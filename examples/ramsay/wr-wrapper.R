@@ -1,9 +1,6 @@
 # wrapper for Wang and Ranalli-style thin plate splines
 # using the distances from wood.c
 
-source("tps.R")
-
-
 wr<-function(samp,knots,bnd,lambda=NULL){
 
    # expect samp to be a list with elements x,y,z 
