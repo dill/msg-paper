@@ -25,7 +25,7 @@ source("wt2-smooth-test.R")
 
 ######################################################
 # OPTIONS
-nsims<-1#200
+nsims<-200
 samp.sizes<-c(250,500)
 # noise levels = 0.35,0.9,1.55
 # snr = 0.95,0.75,0.50
