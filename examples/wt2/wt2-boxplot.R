@@ -9,6 +9,9 @@ names(dat)<-c("model","noise","n","i","mse","mdsdim")
 
 dat<-dat[dat$n==500,]
 
+dat$model<-as.character(dat$model)
+dat$model[dat$model=="wr"]<-"gltps"
+dat$model<-as.factor(dat$model)
 
 theme_set(theme_bw())
 p<-ggplot(dat)
@@ -40,10 +43,10 @@ ggsave(file="wt2-result.pdf",height=4,width=6)
 
 
 
-# (paired) Wilcoxon signed rank test
 tprs.dat<-dat[dat$model=="tprs",]
 soap.dat<-dat[dat$model=="soap",]
 mdsds.dat<-dat[dat$model=="mdsds",]
+wr.dat<-dat[dat$model=="gltps",]
 
 for(n in unique(tprs.dat$n)){
    for(noise in unique(tprs.dat$noise)){
@@ -51,6 +54,7 @@ for(n in unique(tprs.dat$n)){
       this.tprs<-tprs.dat[tprs.dat$n==n & tprs.dat$noise==noise,]
       this.soap<-soap.dat[soap.dat$n==n & soap.dat$noise==noise,]
       this.mdsds<-mdsds.dat[mdsds.dat$n==n & mdsds.dat$noise==noise,]
+      this.wr<-wr.dat[wr.dat$n==n & wr.dat$noise==noise,]
 
       p<-wilcox.test(this.tprs$mse,this.soap$mse,paired=TRUE)$p.value
       cat("tprs n=",n,"noise=",noise,
@@ -60,6 +64,9 @@ for(n in unique(tprs.dat$n)){
       cat("mdsds n=",n,"noise=",noise,
            sign(median(this.soap$mse)-median(this.mdsds$mse)),"p=",p,"\n")
 
+      p<-wilcox.test(this.wr$mse,this.soap$mse,paired=TRUE)$p.value
+      cat("wr n=",n,"noise=",noise,
+           sign(median(this.soap$mse)-median(this.wr$mse)),"p=",p,"\n")
    }
 }
 

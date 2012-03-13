@@ -3,6 +3,11 @@
 library(mgcv)
 library(soap)
 library(msg)
+library(fields)
+
+source("wr-wrapper.R")
+source("tps.R")
+source("pe.R")
 
 ## Initialisation
 # make the horseshoe boundary
@@ -51,11 +56,19 @@ fv.soap<-predict(b.soap,newdata=pred.data,block.size=-1)
 mds.fit<-gam.mds(samp,pred.data,fs.bnd,grid.res=c(20,20),
                  gam.method="GCV.Cp") 
 
+n.knots<-40 # as in the paper
+xk<-cover.design(matrix(c(samp$x,samp$y),length(samp$x),2),n.knots)
+xk<-matrix(c(xk[,1],xk[,2]),length(xk[,1]),2)
+beta.wr<-wr(samp,list(x=xk[,1],y=xk[,2]),fs.bnd)
+pred.wr<-wr.pred(pred.data,
+                 list(x=xk[,1],y=xk[,2]),beta.wr,fs.bnd)
+
+
 # truth
 truth<-fs.test(pred.data$x,pred.data$y)
 
 # squish them together
-preds<-rbind(fv.tprs,fv.soap,mds.fit$pred,truth)
+preds<-rbind(fv.tprs,fv.soap,mds.fit$pred,truth,pred.wr)
 
 write.csv(preds,"ramsay-ex.csv")
 

@@ -8,13 +8,16 @@ dat<-dat[,-1]
 names(dat)<-c("model","noise","n","i","mse","mdsdim")
 
 dat<-dat[dat$n==600,]
+dat$model<-as.character(dat$model)
+dat$model[dat$model=="wr"]<-"gltps"
+dat$model<-as.factor(dat$model)
 
 theme_set(theme_bw())
 p<-ggplot(dat)
 p<-p+geom_boxplot(aes(x=model,y=log(mse)))
 #p<-p+facet_grid(noise~n)
 p<-p+facet_wrap(~noise,nrow=1)
-p<-p+labs(x="Model",y="Logarithm of mean MSE per realisation")
+p<-p+labs(x="Model",y="log(mean MSE) per realisation")
 p<-p+opts(panel.grid.major=theme_blank(),
           panel.grid.minor=theme_blank(),
           panel.background=theme_rect())
@@ -66,7 +69,13 @@ pred.data<-data.frame(x=xx,y=yy)
 # old, crappy way of doing this
 im<-matrix(NA,m,n)
 
-par(mfrow=c(1,3),mar=c(1,1.5,1,1.5),mgp=c(1.5,0.75,0),oma=c(1,1,1,1))
+par(mfrow=c(5,1),mar=c(1,1.5,1,1.5),mgp=c(1.5,0.75,0),oma=c(1,1,1,1))
+
+# truth
+im[onoff]<-dat2[4,]
+image(z=im,x=xm,y=yn,col=heat.colors(1000),main="truth",asp=1,xlab="",ylab="",zlim=c(-5,5),las=1,axes=FALSE)
+contour(z=im,x=xm,y=yn,levels=seq(-5,5,by=.25),add=TRUE,labcex=0.3,lwd=0.5)
+lines(fs.boundary(),lwd=2)
 
 # mds
 im[onoff]<-dat2[3,]
@@ -86,9 +95,16 @@ image(z=im,x=xm,y=yn,col=heat.colors(1000),main="soap",asp=1,xlab="",ylab="",zli
 contour(z=im,x=xm,y=yn,levels=seq(-5,5,by=.25),add=TRUE,labcex=0.3,lwd=0.5)
 lines(fs.boundary(),lwd=2)
 
+# wr
+im[onoff]<-dat2[5,]
+image(z=im,x=xm,y=yn,col=heat.colors(1000),main="gltps",asp=1,xlab="",ylab="",zlim=c(-5,5),las=1,axes=FALSE)
+contour(z=im,x=xm,y=yn,levels=seq(-5,5,by=.25),add=TRUE,labcex=0.3,lwd=0.5)
+lines(fs.boundary(),lwd=2)
 
-dev.copy2eps(file="ramsay-real.eps",width=6,height=1.8)
-dev.copy2pdf(file="ramsay-real.pdf",width=6,height=1.8)
+
+
+dev.copy2eps(file="ramsay-real.eps",width=2,height=5)
+dev.copy2pdf(file="ramsay-real.pdf",width=2,height=5)
 
 
 # (paired) Wilcoxon signed rank test
