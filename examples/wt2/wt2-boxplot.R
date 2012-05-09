@@ -56,17 +56,17 @@ for(n in unique(tprs.dat$n)){
       this.mdsds<-mdsds.dat[mdsds.dat$n==n & mdsds.dat$noise==noise,]
       this.wr<-wr.dat[wr.dat$n==n & wr.dat$noise==noise,]
 
-      p<-wilcox.test(this.tprs$mse,this.soap$mse,paired=TRUE)$p.value
-      cat("tprs n=",n,"noise=",noise,
-          sign(median(this.soap$mse)-median(this.tprs$mse)),"p=",p,"\n")
+      p<-wilcox.test(this.tprs$mse,this.mdsds$mse,paired=TRUE)$p.value
+      cat("tprs noise=",noise,
+          sign(median(this.mdsds$mse)-median(this.tprs$mse)),"p=",p,"\n")
 
-      p<-wilcox.test(this.mdsds$mse,this.soap$mse,paired=TRUE)$p.value
-      cat("mdsds n=",n,"noise=",noise,
-           sign(median(this.soap$mse)-median(this.mdsds$mse)),"p=",p,"\n")
+      p<-wilcox.test(this.wr$mse,this.mdsds$mse,paired=TRUE)$p.value
+      cat("gltps noise=",noise,
+           sign(median(this.mdsds$mse)-median(this.wr$mse)),"p=",p,"\n")
 
-      p<-wilcox.test(this.wr$mse,this.soap$mse,paired=TRUE)$p.value
-      cat("wr n=",n,"noise=",noise,
-           sign(median(this.soap$mse)-median(this.wr$mse)),"p=",p,"\n")
+      p<-wilcox.test(this.soap$mse,this.mdsds$mse,paired=TRUE)$p.value
+      cat("soap noise=",noise,
+           sign(median(this.mdsds$mse)-median(this.soap$mse)),"p=",p,"\n")
    }
 }
 

@@ -2,6 +2,8 @@
 
 library(ggplot2)
 
+source("pe.R")
+
 
 dat<-read.csv("ramsay-results.csv")
 dat<-dat[,-1]
@@ -61,7 +63,7 @@ fs.bnd<-list(x=c(bnd$x,bnd$x[1]),y=c(bnd$y,bnd$y[1]))
 m<-100;n<-100
 xm <- seq(-1,3.5,length=m); yn<-seq(-1,1,length=n)
 xx <- rep(xm,n); yy<-rep(yn,rep(m,n))
-onoff<-inSide(bnd,xx,yy)
+onoff<-soap:::inSide(bnd,xx,yy)
 xx<-xx[onoff];yy<-yy[onoff]
 fs.data<-data.frame(x=xx,y=yy,z=fs.test(xx,yy))
 pred.data<-data.frame(x=xx,y=yy)
@@ -77,15 +79,15 @@ image(z=im,x=xm,y=yn,col=heat.colors(1000),main="truth",asp=1,xlab="",ylab="",zl
 contour(z=im,x=xm,y=yn,levels=seq(-5,5,by=.25),add=TRUE,labcex=0.3,lwd=0.5)
 lines(fs.boundary(),lwd=2)
 
-# mds
-im[onoff]<-dat2[3,]
-image(z=im,x=xm,y=yn,col=heat.colors(1000),main="mdsds",asp=1,xlab="",ylab="",zlim=c(-5,5),las=1,axes=FALSE)
-contour(z=im,x=xm,y=yn,levels=seq(-5,5,by=.25),add=TRUE,labcex=0.3,lwd=0.5)
-lines(fs.boundary(),lwd=2)
-
 # tprs
 im[onoff]<-dat2[1,]
 image(z=im,x=xm,y=yn,col=heat.colors(100),main="tprs",asp=1,xlab="",ylab="",zlim=c(-5,5),las=1, lwd=2,axes=FALSE)
+contour(z=im,x=xm,y=yn,levels=seq(-5,5,by=.25),add=TRUE,labcex=0.3,lwd=0.5)
+lines(fs.boundary(),lwd=2)
+
+# mds
+im[onoff]<-dat2[3,]
+image(z=im,x=xm,y=yn,col=heat.colors(1000),main="mdsds",asp=1,xlab="",ylab="",zlim=c(-5,5),las=1,axes=FALSE)
 contour(z=im,x=xm,y=yn,levels=seq(-5,5,by=.25),add=TRUE,labcex=0.3,lwd=0.5)
 lines(fs.boundary(),lwd=2)
 
@@ -102,7 +104,6 @@ contour(z=im,x=xm,y=yn,levels=seq(-5,5,by=.25),add=TRUE,labcex=0.3,lwd=0.5)
 lines(fs.boundary(),lwd=2)
 
 
-
 dev.copy2eps(file="ramsay-real.eps",width=2,height=5)
 dev.copy2pdf(file="ramsay-real.pdf",width=2,height=5)
 
@@ -111,23 +112,31 @@ dev.copy2pdf(file="ramsay-real.pdf",width=2,height=5)
 tprs.dat<-dat[dat$model=="tprs",]
 soap.dat<-dat[dat$model=="soap",]
 mdsds.dat<-dat[dat$model=="mdsds",]
+gltps.dat<-dat[dat$model=="gltps",]
 
 for(n in unique(tprs.dat$n)){
    for(noise in unique(tprs.dat$noise)){
 
       this.tprs<-tprs.dat[tprs.dat$n==n & tprs.dat$noise==noise,]
+      this.gltps<-gltps.dat[gltps.dat$n==n & gltps.dat$noise==noise,]
       this.soap<-soap.dat[soap.dat$n==n & soap.dat$noise==noise,]
       this.mdsds<-mdsds.dat[mdsds.dat$n==n & mdsds.dat$noise==noise,]
 
-      p<-wilcox.test(this.tprs$mse,this.soap$mse,paired=TRUE)$p.value
-      cat("tprs n=",n,"noise=",noise,"p=",p,"\n")
+      p<-wilcox.test(this.tprs$mse,this.mdsds$mse,paired=TRUE)$p.value
+      cat("tprs noise=",noise, 
+        sign(median(this.mdsds$mse)-median(this.tprs$mse)),"p=",p,"\n")
 
-      p<-wilcox.test(this.mdsds$mse,this.soap$mse,paired=TRUE)$p.value
-      cat("mdsds n=",n,"noise=",noise,"p=",p,"\n")
+      p<-wilcox.test(this.soap$mse,this.mdsds$mse,paired=TRUE)$p.value
+      cat("soap noise=",noise,
+        sign(median(this.mdsds$mse)-median(this.soap$mse)),"p=",p,"\n")
+
+      p<-wilcox.test(this.gltps$mse,this.mdsds$mse,paired=TRUE)$p.value
+      cat("gltps noise=",noise,
+        sign(median(this.mdsds$mse)-median(this.gltps$mse)),"p=",p,"\n")
 
    }
 }
 
 
 
-median(mdsds.dat$mdsdim)
+#median(mdsds.dat$mdsdim)

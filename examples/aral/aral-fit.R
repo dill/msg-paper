@@ -105,8 +105,31 @@ mds.fit<-gam.mds(aral.dat,pred.grid,bnd,grid.res=c(20,20),family=Gamma(link="log
 plot.it(mds.fit,"mdsds")
 
 
-#dev.copy2pdf(file="aral-plot.pdf",height=7,width=7)
-#dev.copy2eps(file="aral-plot.eps",height=7,width=7)
+########################################################################
+###### fit the GLTPS
+#source("pe.R")
+#source("tps.R")
+#source("wr-wrapper")
+#library(fields)
+#
+#
+#n.knots<-100 # as in the paper
+#xk<-cover.design(matrix(c(aral.dat$x,aral.dat$y),
+#                        length(aral.dat$x),2),n.knots)
+#xk<-matrix(c(xk[,1],xk[,2]),length(xk[,1]),2)
+#beta.wr<-wr(gendata.samp,list(x=xk[,1],y=xk[,2]),bnd)
+#pred.wr<-wr.pred(gendata,list(x=xk[,1],y=xk[,2]),beta.wr,bnd)
+#
+#pred.mat<-matrix(NA,gm,gn)
+#pred.mat[pred.onoff]<-pred.wr
+#image(pred.mat,x=unique(gxx),y=unique(gyy),main="tprs",xlab="km (East)",ylab="km (North)",xlim=xlims,ylim=ylims,asp=1,zlim=zlims)
+#contour(z=pred.mat,x=unique(gxx),y=unique(gyy),add=TRUE,labcex=0.5,levels=z.levels)
+#lines(bnd,lwd=2)
+
+
+
+dev.copy2pdf(file="aral-plot.pdf",height=7,width=7)
+dev.copy2eps(file="aral-plot.eps",height=7,width=7)
 
 
 

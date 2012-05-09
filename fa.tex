@@ -56,7 +56,19 @@
 \def\bSig\mathbf{\Sigma}
 \newcommand{\VS}{V\&S}
 \newcommand{\tr}{\mbox{tr}}
-
+\newcommand{\beq}{\begin{equation}}
+\newcommand{\eeq}{\end{equation}}
+\newcommand{\dif}[2]{\frac{{\rm d} #1}{{\rm d} #2}}
+\newcommand{\ildif}[2]{{\rm d} #1/{{\rm d} #2 }}
+\newcommand{\ilpdif}[2]{\partial #1/{\partial #2 }}
+\newcommand{\pdif}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\pddif}[3]{\frac{\partial^2 #1}{\partial #2 \partial #3}}
+\newcommand{\ilpddif}[3]{\partial^2 #1/{\partial #2 \partial #3}}
+%\newcommand{\bm}[1]{\mbox{\boldmath $#1$}}
+\newcommand{\comb}[2]{\left (\begin{array}{c}{#1}\\{#2}\end{array}\right )}
+\newcommand{\gfrac}[2]{\mbox{$ { \textstyle{ \frac{#1}{#2} }\displaystyle}$}}
+\newcommand{\R}{{\sf R }}
+\newcommand{\ts}{^T}
 %  The rotating package allows you to have tables displayed in landscape
 %  mode.  The rotating package is NOT included in this distribution, but
 %  can be obtained from the CTAN archive.  USE OF LANDSCAPE TABLES IS
@@ -77,8 +89,8 @@
 
 
 \author{David L. Miller$^{1*}$\email{dave@ninepointeightone.net}, Simon N. Wood$^{2}$\\
-$^{1}$CREEM, University of St Andrews, The Observatory, Buchanan Gardens, St Andrews KY16 9LZ, Scotland\\
-$^{2}$Dept of Mathematical Sciences, University of Bath, Claverton Down, Bath BA2 7AY, U.K.
+$^{1}$Department of Natural Resources Science, University of Rhode Island, Kingston, Rhode Island 02881, USA\\
+$^{2}$Dept of Mathematical Sciences, University of Bath, Claverton Down, Bath BA2 7AY, UK
 }
 
 \begin{document}
@@ -125,9 +137,8 @@ $^{2}$Dept of Mathematical Sciences, University of Bath, Claverton Down, Bath BA
 \begin{abstract}
 This version: \today %Remove this before submitting!
 
-Spatial smoothing in domains with complicated boundaries is prone to leakage: the inappropriate linking of parts of the domain which are separated by physical barriers. Leakage occurs because most conventional smoothers use the Euclidean metric to measure the distance between data. This approach is flawed: phenomena do not conform to Euclidean geometry in their spatial distribution. Both natural and man-made barriers partition space and models should take this into account. 
+Spatial smoothing in domains with complicated boundaries is prone to leakage: the inappropriate linking of parts of the domain which are separated by physical barriers. Leakage occurs because most conventional methods smooth with respect to the Euclidean distance between observations, even though this distance may not be a meaningful measure of spatial proximity, when boundary features are present. To overcome this problem, we develop a method of smoothing with respect to generalized distances, such as within domain distances. We obtain the generalized distances between our points and then use multi-dimensional scaling to find a configuration of our observations in a Euclidean space of 2 or more dimensions, such that the Euclidian distances between points in that space closely approximate the generalized distances between the points. Smoothing is performed over this new point configuration, using a conventional smoother. To mitigate the problems associated with smoothing in high dimensions we use a generalization of thin plate spline smoothers proposed by Duchon (1977). This general method for smoothing with respect to generalized distances improves on the performance of previous within domain distance spatial smoothers, and often provides a more natural model than the soap film approach of Wood et al. (2008). The smoothers are of the linear basis with quadratic penalty type easily incorporated into a range of statistical models.
 
-We develop a method of smoothing general distances by projecting them into high dimensional spaces using multidimensional scaling. Reliable high dimensional smoothing is achieved by the use of Duchon splines. The model developed rivals the current best finite area method in prediction error terms and fits easily into larger models.
 \end{abstract}
 
 %  Please place your key words in alphabetical order, separated
@@ -173,94 +184,125 @@ In ecology one would often like to create a smooth map of some noisy response as
 %\includegraphics{figs/ramsay-leak.pdf}\\
 \includegraphics[width=0.45\textwidth]{examples/ramsay/ramsay-real.pdf}\\
 %\caption{An example of leakage on the (modified) Ramsay horseshoe (referred to simply as the Ramsay horseshoe here; Wood et al, 2008). A thin plate regression spline was fit to data sampled from the function on the top, the model smooths across the gap in the middle of the domain (bottom).}
-\caption{Top: the modified Ramsay horseshoe function. Below: predictions from models using thin plate regression splines (``tprs''), MDSDS (``mdsds'') and the soap film smoother (``soap'') when 600 points were sampled from the horseshoe and standard normal noise was added. Note that the predictions from the thin plate regression spline fit shows severe leakage.}
+\caption{From top to bottom: the modified Ramsay horseshoe function. Below: predictions from models using thin plate regression splines (``tprs''), MDSDS (``mdsds''), the soap film smoother (``soap'') and geodesic low-rank thin plate splines (``gltps'') when 600 points were sampled from the horseshoe and standard normal noise was added. Note that the predictions from the thin plate regression spline fit shows severe leakage.}
 \label{leakage}
 \end{figure}
 
 
-The problem of leakage arises because of the way in which the smoother measures how near objects are to one another. Most smoothing methods use the Euclidean metric to measure the distance between data. Clearly though, this approach is a flawed: biological populations do not conform to Euclidean geometry in their movement patterns and hence their observed positions will reflect this. Just as whales no not uniformly distribute themselves across sea and glacier, fish do not lay their eggs on land. Natural and man-made barriers carve up the landscape (and seascape), partitioning biological populations; spatial models should take this into account. 
+The problem of leakage arises because spatial smoothers are based on the idea that data from nearby locations should be similar, but in almost all cases the smoothers measure distance between locations using straight line (Euclidean) distance. This approach is flawed in cases in which straight-line distance is not a meaningful measure of proximity. For example, since whales are not good at travelling on land, the meaningful distance between two whales on either side of the Antarctic peninsula is not the straight line distance across the peninsula, but the shortest path between them that stays entirely in open water. This issue is ubiquitous in spatial ecology. Natural and man-made barriers carve up the landscape (and seascape), partitioning biological populations and spatial models should take this into account. 
 
-Here we model the structure of the domain by embedding the extra information relating to the shape of the boundary into the distances. We do this by calculating a set of distances which characterise how an object in the domain move within it. \textit{Within-area distances} should be a better predictor of e.g. abundance than the locations of the measurements, since they more accurately reflect the distances as experienced by objects in the domain. There are many smoothers which perform well in a Euclidean context, in ordered to utilize them we must project the distances into Euclidean space using multidimensional scaling (MDS; e.g. Chatfield and Collins, 1980, Chapter 10). This approach is rather general since any set of distances can be used to create the projection, so we are not limited to the spatial smoothing case (see Section \ref{s:furtherwork}). 
+In this paper we propose a general method for smoothing, based on generalized distances between points. We apply this to produce a finite area smoother, based on the \textit{within-area distances} between points in the domain of interest. The general approach uses multi-dimensional scaling (MDS; e.g. Chatfield and Collins, 1980, Chapter 10) to associate a location in a $\cal D$ dimensional Euclidian space ({\em p-space}) with each original data point. This is done so that the Euclidian distances between points in p-space approximates the original generalized distance between the points. Smoothing is then performed with respect to locations in p-space. However, reasonable approximation of the generalized distances by the Euclidian distances in p-space can require $\cal D$ to be greater than the 2-4 dimensions in which conventional multi-dimensional smoothers work well. For this reason we revisit the general class of smoothers proposed in Duchon's (1977) thin plate spline paper, selecting a smoother that behaves well with increasing dimension. Note that when applied to the finite area problem our our generalized distance smoother can be viewed as an extension of Wang and Ranalli (2007), which we argue below is somewhat better founded.
 
-We seek a smoother that fits into the generalized additive model (GAM) framework since this covers many possible models including mixed effects (see Ruppert, Wand and Carroll, 2003 and Wood, 2006 for an overview). Before exploring our developments further, we review smoothing in a GAM context, specifically spline smoothing.
+The smoother proposed here has the attractive property of being representable using a linear basis expansion with an associate quadratic penalty. Such basis-penalty smoothers have a dual interpretation as Gaussian random fields (eg Rue and Held, 2005), and are appealing because of the ease with which they can be incorporated as components of other models  
+(see e.g. Ruppert, Wand and Carroll, 2003 or Wood, 2006 for overviews). Before presenting our proposed method in detail we now briefly review spline type spatial smoothers, and previous approaches to the finite area smoothing problem.
 
 \subsection{Spline smoothing for spatial data}
 
-In the simplest case, we wish to find an $f$ which is a smooth function of spatial coordinates. We model $f$ using a basis function expansion:
+In the simplest case, we wish to find an $f$ which is a smooth function of spatial coordinates, $x_1$ and $x_2$. We model $f$ using a basis function expansion:
 \begin{equation}
-f(x_{1i}, x_{2i}) = \sum_{j=1}^J \beta_j b_j(x_{1i}, x_{2i}),
+f(x_{1}, x_{2}) = \sum_{k=1}^K \beta_k b_k(x_{1}, x_{2}),
 \label{basis-exp}
 \end{equation}
-where the $b_j$s are flexible (known) basis functions and the $\beta_j$s are coefficients to be estimated. Minimizing a residual sum of squares criteria gives the coefficients which lead to an $f$ which interpolates the data (provided the $b_j$s are sufficiently flexible). In order to avoid overfitting, the sum of squares is penalized. The problem is then: 
-\begin{equation}
-\text{minimize} \quad \sum_{i=1}^n \left ( z_i - f(x_{i1},x_{i2}) \right )^2 + \lambda J\left( f \right) \quad \text{w.r.t.} \quad \bm{\beta},
-\end{equation}
-where ($x_{i1},x_{i2})$ gives the coordinates of the $i^\text{th}$ datum with corresponding response $z_i$. The penalty is made up of a tuneable smoothing parameter ($\lambda$) and a term $J$, which is usually an integral of the squared second derivatives of $f$ (see Section \ref{ss:duchon}). An optimal degree of smoothing (i.e. an optimal $\lambda$) can then be found by optimising some prediction based criteria (GCV; Craven and Wahba, 1979) or a approximate restricted (marginal) likelihood (e.g. ML, REML; Wood, 2011). 
+where the $\beta_k$s are coefficients to be estimated and the $b_k$s are flexible (known) basis functions, such as thin plate spline basis functions or tensor products of B-splines. 
 
-Often smooths of spatial coordinates are used to explain autocorrelation in the data that may confound the actual relationships of interest. Here we concentrate on the case where the response is simply a function of spatial coordinates, however larger models with further (smooth or linear) terms for other covariates (such as sea surface temperature, time of day, observer, etc) are possible. When the response is normally distributed, the model above is an (admittedly simple) example of an additive model. A variety of distributions can be assumed for the response, giving a generalised additive model (Hastie and Tibshirani, 1990). An overview of recent research in the area is given in Ruppert, Wand and Carroll (2009). 
+If $K$ is made large enough to avoid substantial model mis-specification bias, then the estimates of $f$ are almost certain to over-fit any data to which they are fitted. For this reason it is usual to associate a measure $J(f)$ of function wigginess with $f$, and to use this to penalize over fit during model estimation. 
+For example, consider the simple generalized linear model  
+$$
+y_i \sim \text{EF}(\mu_i, \phi),~~~~ g(\mu_i) = \eta_i =f(x_{1i},x_{2i})
+$$
+where EF denotes an exponential family distribution with mean $\mu_i$ and scale parameter $\phi$, while $g$ is a known link function and $\eta_i$ is known as the `linear predictor' of $y_i$. Letting $l({\bm \beta})$ be the log likelihood then estimation of $\bm \beta$ is by maximization of 
+$$
+l({\bm \beta}) - \lambda/2 J(f)
+$$ 
+where $\lambda$ is a tune-able smoothing parameter, used to control the wiggliness of the estimate of $f$ $\lambda $ is typically estimated by GCV or marginal likelihood maximization (see e.g. Wood, 2011). A popular $J(f)$ in the spatial context is the 2 dimensional thin plate spline penalty
+$$
+J(f) = \int \left (\pdif{^2 f}{x_1^2}\right )^2 + 2\left ( \pddif{f}{x_1}{x_2}\right )^2 + \left (\pdif{^2 f}{x_2^2}\right )^2 dx_1 dx_2
+$$
+which can conveniently be written as a quadratic form in $\bm \beta$. 
 
-Our interests lie in harnessing such models in quantitative ecology. In such a setting the estimated function can be used to create a density map which can then be integrated over the domain to obtain an abundance estimate (for examples in a distance sampling framework see Hedley and Buckland, 2004; Williams et al, 2011) or as part of a larger model, taking into account nuisance spatial effects (e.g. Augustin et al, 2009). 
-
-The article proceeds as follows: Section \ref{previous-approaches} highlights previous approaches to the problem of leakage, Section \ref{proposed-model} illustrates the proposed model, Section \ref{examples} gives examples of the method at work (along with comparisons to the current best methodology). Finally, Section \ref{conclusion} compares the proposed method with similar approaches in the kriging literature and discusses further work.
+Within this framework it is straightforward to allow $\eta_i$ to depend on multiple smooth functions of various predictor variables, as well as on conventional parametric terms that are linear in any unknown parameters (e.g. Wood, 2006, based on Hastie and Tibshirani, 1990). Such models are widely used in quantitative ecology, for example in the creation density maps which can then be integrated over the domain to obtain an abundance estimate (see e.g.  Hedley and Buckland, 2004; Williams et al, 2011) or as part of a larger model, taking into account nuisance spatial effects (e.g. Augustin et al, 2009). 
 
 \section{Previous approaches to the problem of leakage}
 \label{previous-approaches}
 
-The first article to address the finite area smoothing problem using splines was Ramsay (2002), where finite element $L$-splines (FELSPLINEs) were proposed . In order to find a smoother that respects the boundary, Ramsay takes a finite element approach. First triangulating the domain, then constructing a set of bivariate quadratic polynomial basis functions over each triangle, specifying that there be continuity over the edges of the triangles. FELSPLINE's boundary conditions specify that the gradient is zero, along normals to the boundary which is not always physically realistic. Wood (2008) show that by modifying the test function on horseshoe domain (as seen in the top panel of Figure \ref{leakage}), the FELSPLINE performance begins to falter. FELSPLINE does not offer a realistic physical model and is therefore not a viable solution to the finite area smoothing problem in general.
+There 3 main types of existing approach to dealing with the finite area smoothing problem.
 
-Wood et al (2008) use a compelling physical analogy for their model, the soap film smoother. First consider the domain boundary to be made of wire, then dip this wire into a bucket of soapy water; a soap film with the same shape as the boundary will have then formed. If the wire lies in the spatial plane, the height of the soap film at a given point is the values of the smooth at that point. This film is then distorted smoothly toward each datum, while minimising the overall surface tension in the film. Mathematically the soap film consists of two sets of basis functions, one that is based entirely inside the domain (a set of interior knot locations are specified) and one that is induced by the (known or estimated) boundary values. These functions are found by solving Poisson and Laplace's equations in two dimensions, which can be computationally costly.
+\subsection*{Partial differential equation methods}
 
-Wang and Ranalli (2007) use thin plate splines but with the usual radial distances replaced by approximate geodesic distances -- the shortest paths within the domain. To calculate the distances, a graph is constructed in which each vertex is only connected to its $k$ nearest neighbours. The geodesic distances between each vertex pair is approximated using  Floyd's algorithm (Floyd, 1962). At low data densities the estimated geodesic distance will tend towards the Euclidean, at high densities the approximation tends, asymptotically toward the true geodesic distance (Bernstein et al, 2000). Even if  dense enough data were available, the method will be rather slow since Floyd's algorithm is cubic in the number of vertices (the size of the data set). Scott-Hayward et al (under review) improve on GLTPS by using a starting graph where only those point pairs whose paths do not cross boundary are connected. They also use a set of local radial basis functions in place of the global basis functions usually used with thin plate splines (the usual global linear trends are also removed; cf. Section \ref{ss:duchon}). The ``locality'' is selected by using model averaging according to AIC$_\text{c}$.
+Ramsay (2002) exploited the link between smoothing with differential operator based penalties and Partial Differential Equations to produce a smoother defined as the solution to a particular PDE problem defined only over a finite area. His FELSPINE method uses a finite element method to compute a smoother, based on the penalty 
+\beq
+J(f) = \int_\Omega \left ( \pdif{^2 f}{x_1^2} + \pdif{^2 f}{x_2^2} \right )^2 dx_1 dx_2 
+\label{soap}
+\eeq 
+Where $\Omega$ is the region of the $x_1$, $x_2$ plane of interest. Ramsay had to use the very strong boundary condition that contours of $f$ meet the boundary of $\Omega$ at right angles, which leads to artefacts when the condition does no hold (see Wood, Bravington and Hedley, 2008). The computational method also makes it awkward to include such terms in larger models.
 
-Paul Eilers (in a seminar at University of Munich in 2006) suggested conformally mapping the domain to a rectangle via the Schwarz-Christoffel transformation (Driscoll and Trefethen, 2002). The authors have extensively investigated such an approach (Miller, 2011, Chapter 3), however the mapping was not flexible enough and failed to preserve the distances between objects, causing artefacts to appear that were significantly more problematic than leakage. 
+Wood et al (2008) use the physical analogy of a soap film to motivate an alternative which can be represented as a basis penalty smoother, and has better boundary behaviour. First consider the domain boundary to be made of wire, then dip this wire into a bucket of soapy water; a soap film with the same shape as the boundary will have then formed. If the wire lies in the spatial plane, the height of the soap film at a given point is the values of the smooth at that point. This film is then distorted smoothly toward each datum, while minimising the overall surface tension in the film. Mathematically the soap film consists of two sets of basis functions, one that is based entirely inside the domain (a set of interior knot locations are specified) and one that is induced by the (known or estimated) boundary values. These functions are found by solving Poisson and Laplace's equations in two dimensions. The penalty associated with the former set is again (\ref{soap}). 
 
-Methods which consider the boundary of the domain as different from the interior are logical in situations where the edges of the domain are physically different (for example, a lake or island). However, in the case where only some of the boundary boundary is a physical barrier, it does not make sense to make this distinction (e.g. in a cetacean study where the coastline gives one part of the boundary and the rest is essentially arbitrary). For this reason we approach the problem from the perspective embedding boundary information in the distances.
+The soap film approach has the basis-penalty form that is convenient for applied work and solves the boundary leakage problem, but basis setup is quite computationally expensive, and for many applications the approach is less natural than smoothing using within domain distances. A further problem with the soap film approach is that no distinction exists between `open' boundaries (for example a boundary that is simply the edge of a survey region) and `hard' boundaries (real physical barriers).  
 
-\section{Model definition}
+\subsection*{Within area distances}
+
+Wang and Ranalli (2007) propose to replace straight-line distances with `geodesic' distances in a smoother that is a sort of approximate thin plate spline. To calculate the geodesic distances, a graph is constructed in which each vertex is the location of an observation and is only connected to its $k$ nearest neighbours. The within area distances between each vertex pair is approximated using  Floyd's algorithm (Floyd, 1962) to find the shortest path through the graph. This algorithm is cubic in the number of data, making the approach very costly for large datasets. At large sample sizes the geodesic distances will tend towards `within area distance', i.e. the shortest path between two point that lies entirely within the domain of interest (see Bernstein et al, 2000). 
+
+Wang and Ranalli use their geodesic distances in place of the usual Euclidian distances in the radial basis functions used to define a thin plate spline. They leave the basis for the null space of the thin plate spline penalty unchanged, so that some linkage across boundary features remains in the smoother. The principle difficulty in interpreting the results of their method is that it is unclear what their penalty term penalizes. The interpretational difficulty arises because  Wang and Ranalli's expressions (3) and (9) involve the square roots of matrices that are not positive semi-definite. In the case of their expression (3), which relates to a thin plate spline, this problem would be rectifiable if the spline coefficients had the usual thin plate spline linear constraints applied in order to force positive definiteness on the spline penalty. However in the case of (9), which defines their geodesic splines, there appears to be no sensible way to obtain positive semi-definiteness. This is a problem because matrix square roots in general only exist for positive semi-definite matrices plus some rather special cases not useful here (see e.g. Higham, 1987). It appears that for computational purposes Wang and Ranalli have used the generalization of a matrix square root given in appendix A.2.11 of Ruppert, Wand and Carroll (2003), but this square root lacks the basic properties that would allow Wang and Ranalli's (2) to be interpretable exactly as a thin plate spline, or for it to be possible to work out what the penalty on their geodesic spline is actually penalizing. 
+
+The method appears to work well in simulations. However, the combination of an un-modified null space, the opacity of the penalty meaning and $O(n^3)$ computational cost are of some concern for practical work. For these reasons it seems worthwhile to try and come up with alternative ways of using the within area distance idea, while avoiding these difficulties. 
+
+\subsection*{Domain warping}
+
+
+Paul Eilers (in a seminar at University of Munich in 2006) suggested conformally mapping the smoothing domain to a convex one  via the Schwarz-Christoffel transformation (Driscoll and Trefethen, 2002). The idea is that smoothing can then be conducted on the convex domain, without leakage problems. The first author has extensively investigated such an approach (Miller, 2011, Chapter 3), but there are insurmountable difficulties associated with the extreme modification of inter-observation distances necessary to achieve domain convexity, which cause artefacts that are significantly more problematic than the leakage effects that the method seeks to avoid. 
+
+The methods proposed in the next section can be viewed as an attempt to put within area distance methods on a more interpretable foundation by using an extension of the notion of domain warping. 
+
+
+\section{The generalized distance smoothing model}
 \label{proposed-model}
 
-Our model consists of a number of stages. First pairwise distances between the data must be calculated, these distances are then projected into MDS space and smoothing is then performed in this new, projected space. This section describes each of these stages and discusses the technical considerations such as selection of the dimension of the MDS projection.
+We assume that we want to model a response $y_i$ which is dependent on covariates via a linear predictor $\eta_i$. Our model is then
+$$
+\eta_i = \alpha_i + f({\bf d}_i)
+$$
+where $\alpha_i$ may depend linearly on further model coefficients (or may simply be zero). $f$ is a smooth function, dependent on ${\bf d}_i$, a vector of generalized distances between the $i^{\rm th}$ observation and either i) the other observations, or ii) some set of `reference points'. 
 
-Here we refer to the original domain as $o$-space and the (MDS) projected domain as $p$-space. It is assumed below that the matrix of within-area distances, $\mathbf{D}$, is known. Appendix B gives and algorithm for calculating within-area distances for simple polygons. %The $2$-vector $\mathbf{x}_i = (x_{1i}, x_{2i})$ is the location of the $i^\text{th}$ point in $o$-space with response $z_i$ for $i=1,\ldots,n$. 
+We complete the model by setting 
+$$
+f({\bf d}_i) = f_{\cal D}\{{\bf x}({\bf d}_i)\}
+$$
+where ${\bf x}({\bf d})$ is the location of the point with distance vector $\bf d$ in the $\cal D$ dimensional 
+Euclidean space determined by multi dimensional scaling applied to either i) the matrix for the complete data set or ii) the distance matrix for the set `reference points' referred to above. $f_{\cal D}$ is a $\cal D$ dimensional `Duchon-spline' (Duchon 1977), a generalization of the familiar thin plate spline. 
+
+The key idea here is that we smooth over a Euclidean space  in which the Euclidean inter-observation distances are approximately equal to the original generalized distances. That is  $\|{\bf x}({\bf d}_i) - {\bf x}({\bf d}_j) \| \approx d_{ij}$ when $d_{ij}$ is the generalized distance between points $i$ and $j$ ($\|\cdot \|$ is the Euclidean norm). The choice of $\cal D$ determines the accuracy of the distance approximation. This can either be part of model specification, in which case $\cal D$ is chosen to achieve some specified level of approximation accuracy, or more pragmatically, can be chosen to optimize estimated prediction error (e.g. to optimize GCV).
+
+In the case of finite area smoothing, the elements of ${\bf d}_i$ are `within area' distances between points, that is to say the shortest path between two points, such that the path lies entirely within the domain of interest. We will refer to the original 2 dimensional data co-ordinates as being elements of the `o-space' while $\cal D$ dimensional co-ordinates in the MDS projection will be referred to as elements of the `p-space'. Appendix B gives and algorithm for calculating within-area distances for simple polygons. 
+
+These smoothers will be henceforth referred to as MDSDS (Multi Dimensional Scaled Duchon Splines), and the next three subsections provide the details for the MDS, smoothing and $\cal D$ selection steps.
 
 \subsection{MDS as a transformation of space}
 
-Multidimensional scaling (MDS; Gower, 1966) takes a matrix of squared inter-point and projects the data in such a way that Euclidean inter-point distances in the projected space are approximately the same as the distances which have been squared to create the entries of the matrix (Chatfield and Collins, 1980, Chapter 10).The MDS projection can be in $n-1$ or fewer dimensions; a projection into 2 dimensions is a typical choice for visualisation.
+In this section we consider the construction of the mapping ${\bf x}({\bf d})$ by multi-dimensional scaling (MDS; Gower, 1966). We start the process by choosing a representative set of locations of size $n_s$ within the domain of interest (i.e. in o-space). This set might be all the locations at which we have observations, but in the case of finite area smoothing we would usually choose a set of locations spread uniformly over the region of interest, in order to ensure that all the important geographic features in o-space will be represented in p-space. 
 
-Mathematically, MDS takes the ($n\times n$, symmetric) matrix of squared distances ($\mathbf{D}$, say), and eigen-decomposes it: $\mathbf{D}=\mathbf{U}\mathbf{\Lambda}\mathbf{U}^\text{T}$, where $\mathbf{U}$ is a matrix with orthogonal columns (the eigenvectors of  $\mathbf{D}$) and $\mathbf{\Lambda}$ is  a diagonal matrix of eigenvalues (decreasing in absolute value order along the diagonal). Taking $\mathbf{U}\mathbf{\Lambda}^{1/2}$ and truncating it to the first $d$ columns gives a $d$-dimensional projection of the points where the square of the inter-point distances are approximately the same as the corresponding entries in $\mathbf{D}$. %The $d$-vector $\mathbf{x}^*_i = (x^*_{1i}, x^*_{2i}, \ldots, x^*_{di})$ gives the corresponding locations in $p$-space, the result of a $d$-dimensional MDS projection of the within-area distances. 
+The generalized distances between all pairs of points in the representative set are then computed, in order to obtain a matrix $\bf D$ such that $D_{ij}$ is the squared generalized distance between points $i$ and $j$. MDS then finds a configuration of points in $\cal D$ dimensions Euclidean space such that the Euclidean distances between the points approximate the original generalized distances. The recipe for achieving this is straightforward. Defining ${\bf H} = {\bf I} - {\bf 11}\ts/n_s$ we can obtain the double centred version of $D$, ${\bf S} = - {\bf HDH}/2$, which is then eigen-decomposed
+$$
+{\bf S} = {\bf U}{\bm \Lambda}{\bf U}\ts.
+$$ 
+The rows of  ${\bf X }= {\bf U}{\bm \Lambda}^{1/2}$ then give locations in an $n_s$ dimensional Euclidean space, such that the interpoint Euclidean distances in that space match the original generalized distances. In practice, dimension reduction is required, so we retain only the first $\cal D$ columns of $\bf X$ to create our p-space, accepting that the interpoint distances in this $\cal D$ dimensional space will only approximate the original generalized distances. See e.g. Chatfield and Collins (1980, Chapter 10) for more details.
 
-The structure of $p$-space is dictated entirely by the eigendecomposition of $\mathbf{D}$, so in order to ensure that we obtain a consistent representation of $p$-space across multiple data sets in the same domain, we first find the ``base'' MDS configuration using a sparse grid of points which cover the boundary features. This step is only used to find $p$-space reliably; the points are discarded afterward. The data locations (and any prediction locations) are inserted into this base configuration using Gower's interpolation (Gower, 1968). More detail and justification is provided in Appendix A.
+We then require some means for finding the location in p-space of a point in o-space that was not in the original representative set used in $\bf D$. Let $\bf d$ be the $n_s$ vector of squared generalized distances (in o-space) between this new point and the points in the original representative set. Gower (1968) gives the following interpolation formula for the location of the new point in p-space 
+$$
+{\bf x} = - {\bm \Lambda}^{-1/2} {\bf U}\ts {\bf d}^\prime
+$$
+where $d^\prime_i = d_i - S_{ii}$. Again, $\bf x$ would usually be truncated, retaining only its first $\cal D $ components. 
 
-Preliminary experiments were carried out using a 2-dimensional $p$-space. Figure \ref{wt2-plot} shows that when a domain with peninsulae is projected using MDS with within-area distances, some of the points in the resulting configuration appear squashed. Truncating the projection to two dimensions can actually cause the ordering of the points to be lost, making the task of the smoother impossible. Further investigation showed that increasing the dimensionality of $p$-space maintains the ordering of the points, however the number of dimensions required varied according to the shape of the domain. Before investigating how many dimensions should be used for the projection, we first must address the problem of reliably smoothing in high-dimensional spaces.
+So, MDS combined with Gower's interpolation formula provide a means for constructing and computing with ${\bf x}({\bf d})$. We now turn to the construction of a suitable smoother in p-space.
+
+
 
 \subsection{Smoothing with Duchon splines}
 \label{ss:duchon}
 
-Thin plate splines regression splines (Wood, 2003) are a popular choice for spatial smoothing: they are rotationally invariant (isotropic), eigen-based (do not require knot selection), relatively fast to fit and implemented in software (in the \texttt{mgcv} package for \textsf{R}). High-dimensional smoothing using thin plate regression splines can be rather tricky, this is because the number of unpenalised functions in the spline (the nullspace) is a function of the smoothing dimension. This leads to a model with a large nullspace, which can lead to overfitting.
-
-Duchon (1977) proposes thin plate splines as part of a much more general set of interpolants. This more general form (henceforth referred to as \textit{Duchon splines}) can be used for high dimensional smoothing whilst avoiding a large and complex penalty nullspace. Duchon splines have been largely neglected in statistical smoothing literature with the exception of Girosi, Jones and Poggio (1995) who discusses the connections between neural networks and GAMs. Hastie, Tibshirani and Friedman (2001, p. 168) discuss Girosi's work briefly.
-
-A full technical exposition (from a mathematical rather than statistical point of view) is given by Duchon (1977); the aim here is only to show how the penalty works and the main differences between it and the thin plate spline penalty. 
-
-Starting with the thin plate spline penalty (e.g. Wood, 2003) in $d$ dimensions with derivative order $m$ we generalize towards the more general penalty.
-
-\begin{equation}
-J_{m,d} = \int \ldots \int_{\mathbb{R}^d} \sum_{\nu_1 + \dots + \nu_d=m} \frac{m!}{\nu_1! \dots \nu_d!} \left( \frac{\partial^m f \left (\mathbf{x} \right )}{\partial x_1^{\nu_1} \ldots  \partial x_d^{\nu_d}} \right)^2 \text{d} x_1 \ldots  \text{d} x_d,
-\label{tprs-pen}
-\end{equation}
-is the usual thin plate spline penalty, where the summation index generates all of the possible combinations of derivative orders such than their sum is still $m$ (thereby finding all the correct cross-terms for the derivatives). In order to ensure that $f$ remains continuous, $2m>d$.
-
-It can then be shown that the minimiser of (\ref{tprs-pen}) is the thin plate spline basis:
-\begin{equation}
-f(\mathbf{x}) = \sum_{i=1}^n \delta_i \eta_{md}(\mathbf{x}-\mathbf{x_i}) + \sum_{j=1}^M \alpha_j \phi_j(\mathbf{x}),
-\label{tprs-basis}
-\end{equation}
-where the first summation is a set of radial basis functions ($i$ indexing the $n$ data) and the second summation is of a set of linearly independent polynomials of degree less than $m$. The terms in the second summation are unpenalized since their $m^\text{th}$ derivatives are zero. There are $M$ of these polynomials lying in the nullspace of the penalty, where $M$ is given by:
-\begin{equation}
-M=\begin{pmatrix} m+d-1 \\ d  \end{pmatrix}.
-\label{gds-bigm}
-\end{equation}
-In the cases presented so far, $d$ (the MDS projection dimension) is known and $m$ is dictated by $d$, since we choose the smallest $d$ such that $2m>d$. $M$ increases very quickly with the number of dimensions (dashed line, Figure \ref{nullspace-dim}). Due to their linear independence, the polynomials included are increasingly complex. A large number of increasingly complex, global functions which are unpenalized pose a serious threat to model parsimony.
+In order for our smoother to have a convenient basis-penalty form, we need to smooth in p-space using a basis-penalty smoother. A thin plate spline (TPS) is the obvious choice for smoothing arbitrarily scattered data where the Euclidean distance between points determines similarity, but there is a technical problem. To achieve a smooth $f$ requires $2m > {\cal D}$ where $m$ is the order of differentiation in the TPS penalty, but the dimension of the space of unpenalized functions in a TPS basis is 
+$ M = \left ( \begin{array}{c} m + {\cal D} - 1 \\ {\cal D} \end{array} \right )$. As figure \ref{nullspace-dim} shows the minimum possible $M$ increases rapidly with $\cal D$, leading to the danger of substantial undersmoothing as $\cal D$ increases.
 
 \begin{figure}
 \centering
@@ -271,98 +313,141 @@ In the cases presented so far, $d$ (the MDS projection dimension) is known and $
 \end{figure}
 
 
-By Plancherel's theorem (e.g. Vretblad, 2003, p. 180), if we take the Fourier transform of the derivatives in (\ref{tprs-pen}), we have the same penalty (numerically):
+To combat this problem we propose to use a smoother from the larger class of functions considered in Duchon's (1977) paper introducing thin plate splines, which will allow us to obtain a smoother for which $M = {\cal D} + 1$. This larger class has been almost entirely ignored in the statistical literature, so we provide a brief summary here. 
+
+The difference between general Duchon splines and thin plate splines is in the smoothing penalty used. To understand the difference it helps to start with the general TPS penalty
 \begin{equation}
-J_{m,d} = \int \ldots \int_{\mathbb{R}^d} \sum_{\nu_1 + \dots + \nu_d=m} \frac{m!}{\nu_1! \dots \nu_d!} \left ( \mathfrak{F} \frac{\partial^m f}{\partial x_1^{\nu_1} \ldots  \partial x_d^{\nu_d}} \left (  \boldsymbol{\tau}\right ) \right )^2 \text{d} \boldsymbol{\tau}.
+J_{m,{\cal D}} = \int_{\mathbb{R}^d} \sum_{\nu_1 + \dots + \nu_d=m} \frac{m!}{\nu_1! \dots \nu_d!} \left( \frac{\partial^m f \left (\mathbf{x} \right )}{\partial x_1^{\nu_1} \ldots  \partial x_d^{\nu_d}} \right)^2 \text{d} x_1 \ldots  \text{d} x_d.
+\label{tprs-pen}
+\end{equation}
+By Plancherel's theorem (e.g. Vretblad, 2003, p. 180), if we take the Fourier transform, $\mathfrak{F}$, of the derivatives in (\ref{tprs-pen}) then the penalty can be re-expressed as
+\begin{equation}
+J_{m,{\cal D}} =  \int_{\mathbb{R}^d} \sum_{\nu_1 + \dots + \nu_d=m} \frac{m!}{\nu_1! \dots \nu_d!} \left ( \mathfrak{F} \frac{\partial^m f}{\partial x_1^{\nu_1} \ldots  \partial x_d^{\nu_d}} \left (  \boldsymbol{\tau}\right ) \right )^2 \text{d} \boldsymbol{\tau}.
 \label{tprs-pen-ft}
 \end{equation}
-By taking the Fourier transform, we can think about the penalty in a different way. Rather than integrating the field of derivatives over space, the penalty is calculated from measuring the intensity of the different frequencies of the derivatives over the whole domain. Intuitively, the low frequency components of the derivatives of $f$ are likely performing a similar task to those functions in the nullspace of the penalty, where as the more complicated, high frequency components are more complicated parts of the function, likely to be the parts of $f$ that we wish to suppress. 
-
-We would like to suppress those more wiggly frequencies of $f$ more than the less wiggly parts, Duchon provides a way of doing this by introducing a weight function, $w$, which  can be used to pick out particularly high frequencies and penalise those more than lower frequencies:
+where $\bm \tau$ are now frequencies, rather than locations. Duchon then considers weighting the Fourier transform of the derivatives by some power of frequency, effectively increasing the penalization of high frequency components in the spatial derivatives if the power is positive. The resulting penalty is 
 \begin{equation}
-\int \ldots \int_{\mathbb{R}^d} w(\boldsymbol{\tau}) \sum_{\nu_1 + \dots + \nu_d=m} \frac{m!}{\nu_1! \dots \nu_d!} \left ( \mathfrak{F} \frac{\partial^m f}{\partial x_1^{\nu_1} \ldots  \partial x_d^{\nu_d}} \left (\boldsymbol{\tau} \right ) \right )^2 \text{d} \boldsymbol{\tau}.
-\label{duchon-penalty-general}
-\end{equation}
-Setting $w(\boldsymbol{\tau})=1, \forall \boldsymbol{\tau}$ recovers (\ref{tprs-pen}).
-
-Duchon suggests the use of $w(\boldsymbol{\tau})= \lvert \boldsymbol{\tau} \rvert^{2s}$. This will still give a minimiser of the form of (\ref{tprs-basis}) but with a different $M$. This (Duchon spline) penalty is:
-\begin{equation}
-\breve{J}_{m,d} = \int \ldots \int_{\mathbb{R}^d} \lvert \boldsymbol{\tau} \rvert^{2s} \sum_{\nu_1 + \dots + \nu_d=m} \frac{m!}{\nu_1! \dots \nu_d!}\left ( \mathfrak{F} \frac{\partial^m f}{\partial x_1^{\nu_1} \ldots  \partial x_d^{\nu_d}} \left (\boldsymbol{\tau} \right ) \right )^2 \text{d} \boldsymbol{\tau}.
+\breve{J}_{m,{\cal D}} = \int_{\mathbb{R}^d} \| \boldsymbol{\tau} \|^{2s} \sum_{\nu_1 + \dots + \nu_d=m} \frac{m!}{\nu_1! \dots \nu_d!}\left ( \mathfrak{F} \frac{\partial^m f}{\partial x_1^{\nu_1} \ldots  \partial x_d^{\nu_d}} \left (\boldsymbol{\tau} \right ) \right )^2 \text{d} \boldsymbol{\tau}.
 \label{duchon-penalty}
 \end{equation}
-Again, (\ref{tprs-pen}) can be recovered from this penalty by setting $s=0$. When $s>0$ higher frequencies are penalised more than lower ones. In order to obtain smooth functions it is required that $m+s>d/2$ (this replaces the usual continuity condition, $2m>d$). Using a value of $s>0$ allows for high dimensional smoothing while still using lower-order penalties without yielding discontinuous functions. The less wiggly frequency components of the radial basis functions are penalised less, making up for those linearly independent polynomials which were not included. The penalty allows the use of a reduced nullspace (in both size and complexity terms) while not sacrificing the continuity of $f$. 
+where $-{\cal D} < 2s < {\cal D}$ and the restriction $m + s > {\cal D}/2$ is applied to ensure continuity of the splines that result from use of this penalty. 
 
-One can therefore think of $s$ as a kind of ``fudge factor'' that allows the conditions on $m$ and $d$ to be relaxed. Given some fixed combination of $m$ and $d$, an $s$ can be found by simply calculating $s>d/2-m$. For the examples below, the smallest $s(\in \mathbb{Q})$ is used with $m=2$ (i.e. second derivative penalty), so:
-\begin{equation}
-s=d/2-1.
-\label{duchon-s-eqn2}
-\end{equation}
+Duchon shows that the function minimising (\ref{duchon-penalty}) while interpolating or smoothing data at locations ${\bf x}_i$ has the form 
+$$
+\hat f({\bf x}) = \sum_i^n \gamma_i K_{2m+2s-{\cal D}}(\|{\bf x}-{\bf x}_i\|) + \sum_j^M \alpha_j \phi_j({\bf x})
+$$
+where the $\phi_j({\bf x})$ form a basis for the polynomials of order $<m$, ${\bf x}_i$ is the ith observation location and $\gamma_i$ and $\alpha_j$ are coefficients to be estimated, subject to the $M$ linear constraints
+\beq
+\sum_i^n \gamma_i \phi_j({\bf x}_i)=0.
+\label{duchon.constraint}
+\eeq
+The other basis functions are given by
+$$
+K_d(t) = \left \{ \begin{array}{ll}
+(-1)^{(d+1)/2}|t|^d & d \text{~~odd}\\
+(-1)^{d/2}|t|^d\log |t| & d \text{~~even}
+\end{array} \right .
+$$
+Finally, given the linear constraints (\ref{duchon.constraint}),
+$$
+\breve{J}_{m,{\cal D}} = {\bf \delta} \ts {\bf K} {\bf \delta}
+$$
+where $K_{ij} = K_{2m+2s-{\cal D}}(\|{\bf x}_i-{\bf x}_j\|)$. Notice that $s=0$ gives a conventional TPS.
 
-The solid line in Figure \ref{nullspace-dim} gives the number of functions that lie in the nullspace of penalty (\ref{duchon-penalty}), i.e. the result of using (\ref{duchon-s-eqn2}) with (\ref{gds-bigm}). Here $m$ is set to 2 so the derivative order is constant as the dimensionality increases, leading to a linear increase in nullspace size with the smoothing dimension.
+As an example of using this basis and penalty, we note that estimating $f$ to minimize
+$$
+\sum_i^n (y_i - f({\bf x}_i))^2 + \lambda \breve{J}_{m,{\cal D}}
+$$
+now reduces to the straightforward optimization problem of finding $\hat {\bm \gamma} $ and $\hat {\bm \alpha}$ to minimize
+$$
+\|{\bf y} - {\bf K } {\bm \gamma} - {\bf A}{\bm \alpha}  \|^2 + \lambda {\bm \gamma}\ts {\bf K} {\bm \gamma} ~~\text{s.t.}~~{\bf A}\ts {\bm \gamma} = {\bf 0}
+$$
+where $A_{ij} = \phi_j({\bf x}_i)$. Notice that this problem has exactly the same structure as the TPS problem, so exactly the same approach to computation can be taken. More importantly optimal rank reduced versions of these Duchon splines can be produced using the methods given in Wood (2003) for the TPS. Wood (2003) uses an eigen approximation to the full spline thereby avoiding the difficult problem of $\cal D$ dimensional knot placement that complicates other approaches to reduced rank splines, so we use this approach in what follows.
 
-The eigen-decomposition technique for avoiding knot selection for thin plate splines from Wood (2003) can be used with Duchon splines and is used in all of the examples below.
+We are now in a position to produce a spline suitable for smoothing in p-space. Specifically we choose a (reduced rank) Duchon spline with $m=2$ and $s = {\cal D}/2 - 1$, which will give us a smooth $f$ for which $M={\cal D}+1$ (i.e. the unpenalized component of $f$ grows only linearly with $\cal D$).
 
-\subsection{Selecting the MDS projection dimension}
+ 
+
+
+\subsection{Selecting $\cal D$}
 \label{s:mdsdimselect}
 
-Duchon splines allow for reliable high dimensional smoothing, but how many dimensions should be used? Having one projection dimension for every domain surely seems like a recipe for disaster, since even if this set high enough to be acceptable for all domains, there would be some, simpler domains for which this would be far too high, wasting computational time and leading to non-parsimonious models. Alternatively, the number of dimensions could be selected according to the proportion of variation in the distances explained by the projection, however this too is somewhat subjective.
+An obvious question is whether we actually need $\cal D$ to be larger than 2 in practice. Figure \ref{wt2-plot} provides an illustration that in general we do. It shows what happens when within area distances over a 2 dimensional domain with a peninsulae are used to obtain a 2D p-space. Some of the points in the resulting p-space configuration become quite severely squashed together. In fact truncating the projection to two dimensions can sometimes cause the basic ordering of the points to be lost, making the task of the smoother impossible. Further investigation showed that increasing the dimensionality of $p$-space maintains the ordering of the points, however the number of dimensions required varied according to the shape of the domain. 
 
-By fitting models with increasing projection dimension and selecting the projection with the lowest GCV score an ``optimal'' projection can be found. This gives a practical alternative to the above methods. There is no particular reason to think that the score should be unimodal in the number of dimensions, so a full search is performed. An upper bound of the number of dimensions that explained 95\% of the variation in the distances was used in the analyses shown below. Figure \ref{aral-gcvplot} shows the relationship between projection dimension and GCV score for the Aral sea data analysed below.
-
-Using GCV scores exploits the fact that the time-consuming part of the process is the calculation of the within-area distances; fitting the smoother is cheap in comparison (the GCV score is calculated for each model if it is used to find optimal smoothing parameters). Note that other criteria could be used; for example the ML score (the GCV score performed better in simulation, so is used here). The REML score is not suitable since the fixed effects of the model will change with the increasing projection dimension and comparison of scores is therefore not possible (Wood, 2011). 
-
-The next section looks at some simulated examples and an analysis of data from the Aral sea. The method detailed above will be henceforth referred to as MDSDS (MultiDimensional Scaling with Duchon Splines).
-
-\section{Examples}
-\label{examples}
-
-To illustrate the utility of the model two simulation studies are shown, followed an examples using real data. In each case MDSDS was compared with thin plate splines (which do not account for the boundary) and the soap film smoother (which does). In all cases smoothing parameters were selected by GCV. The \textsf{R} packages \texttt{mgcv} (available from CRAN), \texttt{soap} (available from \url{http://www.maths.bath.ac.uk/~sw283/simon/software.html}) and \texttt{msg} (available from \url{http://github.com/dill/msg}) were used to fit the models.
-
-In all the cases below the basis size specified refers to the maximum basis size allowed, since the penalty will reduce the complexity of the smoother, we simply need to specify that the smooth functions are wiggly enough.
-
-\subsection{Ramsay's horseshoe}
-
-The horseshoe shape shown in the top panel of Figure \ref{leakage} is an obvious benchmark for techniques that wish to combat leakage. Although perhaps unrealistic (and bordering on pathological), any new methods that works well on the horseshoe should have a good chance of working well in more realistic situations. A simulation experiment was run with the same setup as in Wood et al. (2008): 200 replicates were generated at each of three error levels (standard normal noise multiplied by 0.1, 1 and 10) with sample size 600. A thin plate regression spline, (Wood, 2003), with basis size 100 and a soap film smoother with 32 interior knots  and a 40 knot cyclic  spline was used to estimate the boundary. For the MDSDS model, the basis size was set to 100 and a 20 by 20 initial grid was used for the MDS projection (see Appendix A), MDS projection dimension was selected by GCV in the range of 2 and the number of dimensions that explained 95\% of the variation in the distance matrix of the initial grid. For each realisation the mean squared error (MSE) was calculated between the true function and a prediction grid of 720 points.
-
-\begin{figure*}
-\centering
-\includegraphics[width=\textwidth]{examples/ramsay/ramsay-result.pdf}
-\caption{Top: boxplots of per-realisation $\log$ mean squared error at the three noise levels. Using a paired Wilcoxon signed two-sample test, in every case the thin plate regression spline model (``tprs'') was found to be significantly worse than the soap film smoother (``soap'') at the 0.05 level. The new approach (``mdsds'') was significantly better than soap when sample size 600 with noise level 0.1.}
-\label{ramsay-results}
-% generated by examples/ramsay/ramsay-plot.R
-\end{figure*}
-
-As can be seen in Figure \ref{ramsay-results}, the thin plate regression spline has rather poor performance in MSE terms while MDSDS and the soap film smoother perform equally well, with MDSDS outperforming the soap film in one scenario. The median number of dimensions selected for the MDS projection using GCV was 3 (max. 14, min. 2). Looking more qualitatively at the bottom part of Figure \ref{ramsay-results}, the image plots do not show any evidence of leakage.
-
-\subsection{Peninsulae}
-
-The results from the modified Ramsay horseshoe are encouraging. However, as mentioned above, the domain is not particularly realistic. To further explore the performance of MDSDS a more realistic domain was used. The domain, which attempts to mimic a coastline, is shown in the left panel of Figure \ref{wt2-plot}.
-
-Simulations were run at a series of noise levels 0.35, 0.9 and 1.55 equating to signal-to-noise ratios of 0.50, 0.75 and 0.95. The soap film smoother used 109 internal knots and 60 for the cyclic boundary smooth. The MDSDS models used an initial grid of 120 by 126 points, the basis size was 140. The thin plate regression spline basis size was also 140. Figure \ref{wt2-boxplots} shows the boxplots of the $\log$ of the MSE per realisation for each model. In the high and low noise cases, a paired Wilcoxon signed rank test showed that the soap film smoother and MDSDS were not significantly different, in the medium noise case, MDSDS was significantly better than the soap film smoother.
-
-%tprs n= 500 noise= 0.35 -1 p= 1.447002e-34 
-%mdsds n= 500 noise= 0.35 1 p= 0.2240232 
-%tprs n= 500 noise= 0.9 -1 p= 2.720218e-34 
-%mdsds n= 500 noise= 0.9 1 p= 3.383126e-14 
-%tprs n= 500 noise= 1.55 -1 p= 5.414349e-34 
-%mdsds n= 500 noise= 1.55 1 p= 0.3886599 
-
-\begin{figure*}
+\begin{figure}
 \centering
 \includegraphics[width=\textwidth]{examples/wt2/wt2-plot.pdf} \\
 \caption{Left to right: surface of the peninsulae domain, points in the domain and finally their projection into 2-dimensional MDS space when within-area distances are used to calculate the distance matrix. The MDS space plot shows that some squashing can happen in two dimensions. The large left peninsula and some of the smaller peninsulae have lost their ``width'' and, in fact, points within them have lost ordering.}
 \label{wt2-plot}
 % generated by examples/wt2/wt2-plot.R
-\end{figure*}
+\end{figure}
+
+Having accepted the need for ${\cal D}>2$, we need some means for choosing $\cal D$. The two obvious strategies might be characterised as `model driven' and `data driven'. 
+
+In the model driven approach we specify the accuracy with which the inter-point distances in p-space must match the original generalized distances as part of model specification, and $\cal D$ is then increased during fitting until this specification is met. In the data driven approach then $\cal D$ is chosen in order to optimize some prediction error criterion, such as GCV.  Figure \ref{aral-gcvplot} shows the relationship between $\cal D$ and GCV score for the Aral sea data analysed below.
+
+Notice that selecting $\cal D$ is typically a small part of the computational burden, since the MDS and smoothing are usually cheap relative to the computation of distances (at least in the finite area smoothing case).
 
 
-\begin{figure*}
+\section{Examples}
+\label{examples}
+
+To illustrate the utility of the model two simulation studies are shown, followed by examples using real data. All concentrate on the finite area smoothing problem. In each case MDSDS was compared with thin plate splines (which do not account for the boundary), geodedic low-rank thin plate splines (GLTPS) and the soap film smoother (which both do account for the boundary). The GLTPS model was as described in Wang and Ranalli (2007), but with the within-area distances calculated as described in Appendix B (i.e. the same as for MDSDS); knots were placed using the \texttt{cover.design} method in the package \texttt{fields} (again, as in Wang and Ranalli (2007)). In all cases smoothing parameters were selected by GCV. The \textsf{R} packages \texttt{mgcv} (available from CRAN), \texttt{soap} (available from \url{http://www.maths.bath.ac.uk/~sw283/simon/software.html}) and \texttt{msg} (available from \url{https://github.com/dill/msg}) were used to fit the models. Code for fitting the GLTPS is available at \url{https://github.com/dill/gltps}
+
+In all the cases below the basis size specified refers to the maximum basis size allowed, since the penalty will reduce the complexity of the smoother, we simply need to specify an upper bound on the basis size.
+
+
+\subsection{Ramsay's horseshoe}
+
+The horseshoe shape shown in the top panel of Figure \ref{leakage} is an obvious benchmark for techniques that wish to combat leakage. Although perhaps unrealistic (and bordering on pathological), any new method that works well on the horseshoe should have a good chance of working well in more realistic situations. A simulation experiment was run with the same setup as in Wood et al. (2008): 200 replicates were generated at each of three error levels (standard normal noise multiplied by 0.1, 1 and 10) with sample size 600. A thin plate regression spline, (Wood, 2003), with basis size 100 and a soap film smoother with 32 interior knots  and a 40 knot cyclic  spline was used to estimate the boundary. For the MDSDS model, the basis size was set to 100 and a 20 by 20 initial grid was used for the MDS projection (see Appendix A), MDS projection dimension was selected by GCV in the range of 2 and the number of dimensions that explained 95\% of the variation in the distance matrix of the initial grid. For the GLTPS 40 knot locations were selected as in Wang and Ranalli (2007). For each realisation the mean squared error (MSE) was calculated between the true function and a prediction grid of 720 points.
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{examples/ramsay/ramsay-result.pdf}
+%\caption{Top: boxplots of per-realisation $\log$ mean squared error at the three noise levels. Using a paired Wilcoxon signed two-sample test, the difference between the new approach (``mdsds'') and the other models was significantly different for the two lower noise levels (at the 0.05 level). For the higher noise level, the three methods that accounted for the boundary (``gltps'' and ``soap'') were not distinguishable from MDSDS. The thin plate regression spline (``tprs'') was worse.
+\label{ramsay-results}
+% generated by examples/ramsay/ramsay-plot.R
+\end{figure}
+
+As can be seen in Figure \ref{ramsay-results}, the thin plate regression spline has rather poor performance in MSE terms while MDSDS, the soap film smoother and GLTPS perform significantly better. MDSDS outperforms the soap film and GLTPS at lower noise levels, becoming indistinguishable at the highest noise level. The median number of dimensions selected for the MDS projection using GCV was 3 (max. 14, min. 2). Looking more qualitatively at the bottom three plots in Figure \ref{ramsay-results}, the predictions do not show any evidence of leakage.
+
+% Wilcoxon vs. MDSDS
+%tprs noise= 0.1 -1 p= 1.447002e-34 
+%soap noise= 0.1 -1 p= 7.672467e-07 
+%gltps noise= 0.1 -1 p= 1.447002e-34 
+%tprs noise= 1 -1 p= 1.447002e-34 
+%soap noise= 1 1 p= 0.003321106 
+%gltps noise= 1 1 p= 0.0003642348 
+%tprs noise= 10 -1 p= 5.060672e-25 
+%soap noise= 10 -1 p= 0.8533422 
+%gltps noise= 10 -1 p= 0.05883376 
+
+\subsection{Peninsulae}
+
+The results from the modified Ramsay horseshoe are encouraging. However, as mentioned above, the domain is not particularly realistic. To further explore the performance of MDSDS a more realistic domain was used. The domain, which attempts to mimic a coastline, is shown in the left panel of Figure \ref{wt2-plot}.
+
+Simulations were run at a series of noise levels 0.35, 0.9 and 1.55 equating to signal-to-noise ratios of 0.50, 0.75 and 0.95, respectively. The soap film smoother used 109 internal knots and 60 for the cyclic boundary smooth. The MDSDS models used an initial grid of 120 by 126 points, the basis size was 140. The thin plate regression spline basis size was also 140. For the GLTPS, 80 knots were selected using the space filling design, as above.
+
+Figure \ref{wt2-boxplots} shows the boxplots of the $\log$ of the MSE per realisation for each model. In the low noise cases, a paired Wilcoxon signed rank test showed that the soap film smoother and MDSDS were not significantly different at the 0.05 level. In all cases MDSDS was significantly better than both GLTPS and thin plate regression splines.
+
+% Wilcoxon vs. MDSDS
+%tprs noise= 0.35 -1 p= 7.969241e-31 
+%gltps noise= 0.35 -1 p= 1.298381e-14 
+%soap noise= 0.35 -1 p= 0.1789427 
+%tprs noise= 0.9 -1 p= 1.903392e-28 
+%gltps noise= 0.9 -1 p= 1.032922e-11 
+%soap noise= 0.9 -1 p= 1.23365e-11 
+%tprs noise= 1.55 -1 p= 9.46488e-32 
+%gltps noise= 1.55 -1 p= 0.01354858 
+%soap noise= 1.55 -1 p= 0.01313839 
+
+\begin{figure}
 \centering
 \includegraphics{examples/wt2/wt2-result.pdf} \\
-\caption{Boxplots of logarithm of mean MSE per realisation for the three models tested on the peninsulae domain at three noise levels. At each noise level, the median mean MSE was lower for MDSDS than for the thin plate regression spline or soap film smoother. A paired Wilcoxon signed rank test showed that the difference between MDSDS and the soap film smoother was only significant for the 0.9 noise level (where MDSDS performed better than the soap film).}
+\caption{Boxplots of logarithm of mean MSE per realisation for the models tested on the peninsulae domain at three noise levels. At each noise level, the median mean MSE was lower for MDSDS than for the thin plate regression spline or soap film smoother. A paired Wilcoxon signed rank test showed that the difference between MDSDS and the soap film smoother was only non-significant at the 0.35 noise level.}
 \label{wt2-boxplots}
 % generated by examples/wt2/wt2-boxplot.R
-\end{figure*}
+\end{figure}
 
 
 
@@ -383,51 +468,29 @@ The models that were fitted to the data were: a thin plate regression spline wit
 Predictions from the models over a grid of 496 points are shown in Figure \ref{aral-plot}. The fits are broadly similar across most of the domain, both MDSDS and the soap film smoother do not show signs of leakage around (-50,-50), as the thin plate regression spline does.
 
 
-\begin{figure*}
+
+\begin{figure}
 \centering
-\includegraphics[width=\textwidth]{examples/aral/aral-plot.pdf} \\
-\caption{Aral sea analysis. Clockwise from top left: raw data, followed by predicted surfaces for thin plate regression spline, MDSDS and the soap film smoother. The latter two avoid the leakage seen in (-50,50) region of the tin plate regression spline fit.}
+\includegraphics[width=\textwidth]{examples/aral/aral-plot.pdf}
+\caption{replace this}
 \label{aral-plot}
 % generated by examples/aral/aral-plot.R
-\end{figure*}
+\end{figure}
 
+%\caption{Aral sea analysis. Clockwise from top left: raw data, followed by predicted surfaces for thin plate regression spline, MDSDS and the soap film smoother. The latter two avoid the leakage seen in the $(-50, 50)$ region of the thin plate regression spline fit.}
 
+%\caption{Aral sea analysis. Clockwise from top left: raw data, predicted surfaces for thin plate regression spline, MDSDS and the soap film smoother. The latter two avoid the leakage seen in the $(-50, 50)$ region of the thin plate regression spline fit.}
 
 
 \section{Discussion}
 \label{conclusion}
 
-This final section compares the MDSDS approach with similar models that have been proposed in the kriging literature. It then moves on to a discussion of further work before concluding.
+Our MDSDS approach appears to have competitive performance with existing methods, while providing a number of possible advantages. Relative to the soap film approach of Wood et al. (2008) the method has a more natural handling of open and closed boundaries, and is also often the more natural model, when the linkage between geographic areas is via movement of organisms. Relative to Wang and Ranalli (2007) our approach is somewhat more transparent in terms of what is being penalized when smoothing, and also uses a null space basis that avoids leakage, unlike the Wang and Ranalli method for which the null space does not respect boundary features. 
 
-\subsection{Comparison to kriging approaches}
+The MDSDS has an interesting link to Kriging with within area distances. For example L{\o}land and H{\o}st (2003) used river network distances in the construction of a variogram, and overcame the problem of lack of positive definiteness (essentially the problem ignored in Wang and Ranalli, 2007) by using MDS and then constructing the variogram in the MDS configuration space. Jensen et al (2006) suggest using the proportion of variation explained or the Bayesian criterion of Oh and Raftery (2001) as possible metrics to perform projection dimension selection in the Krigging setting but do not fully address the issue, resorting to 2-dimensional projections. To date the Kriging literature in this area seems to have considered only stationary processes, and of course the Kriging approach does not make for the straightforward incorporation in general statistical models that our basis-penalty smoothers provide. 
 
-Kriging  (see Venables and Ripley, 2002, pp. 425--430 for a concise introduction; Schabenberger and Gotway, 2005 or Diggle and Ribiero, 2007 for a thorough treatment) consists of modelling the spatial correlation between points via the semivariogram and a spatial trend via a mean function (similar to the linear predictor in the smoothing case, although there are flavours of kriging where the mean is considered constant and/or known). Semivariogram models assume that the correlation between points is related to the distance between the points but not their position (this is known as stationarity, and comes in varying degrees, Schabenberger and Gotway, 2005, pp. 42-44). Although not specifically designed to deal with leakage issues (although leakage manifests itself as a breakdown of stationarity in a kriging context), several authors have suggested data transformation to maintain stationarity by approximating within-area distances with equivalent Euclidean distances via multidimensional scaling.
+Further interesting work would involve considering more biologically motivated measures of distance. For example, distances based on the minimum energetic cost of moving between  two locations. It is also of interest to investigate further the use of MDSDS for smoothing with respect to distances that have no geographic basis (the socio-economic similarity of parliamentary constituencies, or measures of genetic relatedness, for example), and we are investigating this at present.
 
-%Kriging is focused on the explicit modelling of the correlations between points in space as a function of the distance between them via the estimation of the semivariogram. It is therefore logical that in, say, a river system the distances between points are calculated along the river's course rather than the Euclidean distance. 
-
-For the semivariogram to be a valid covariance function, it must be positive definite or conditionally negative definite (Diggle and Ribiero, 2007, p. 47). However when non-Euclidean distances are used the semivariogram may no-longer fulfil either of these conditions (Curriero, 2006). The work of L{\o}land and H{\o}st (2003) attempts to solve this problem by using multidimensional scaling to find a Euclidean approximation to water distances. Rather than directly calculating the distances between the data, a series of approximations are used. First the domain in question is triangulated, then the ``river distance'' between all of the nodes in the triangulation are calculated via Dijkstra's algorithm, these distances are then projected using MDS. Finally, the data locations are mapped into MDS space by interpolating between the triangulation points in MDS space.  The Euclidean distances in MDS space are then used in the estimation of the semivariogram. There are a number of issues with this approach. The authors only consider ordinary kriging (constant mean process), so spatial variation only enters the model through the semivariogram. The effect of using the MDS projected points for a spatially varying mean process (in addition to the estimation of the semivariogram) has not been investigated. Prevailing opinion is that only polynomial trends should be used for the mean process (Diggle and Ribiero, 2007, p. 57), how such an approach would perform in higher dimensions is not clear. Although the approximations used undoubtedly decrease the computational time, the validity of the approximations is not tested, especially with regard to semivariogram fitting (Jensen, Christman, and Miller, 2006). The discretisation of the domain necessary to compute the graph distance via Dijsktra's algorithm has similar pitfalls to Wang and Ranalli (2007). Jensen et al (2006) suggest using the proportion of variation explained or the Bayesian criterion of Oh and Raftery (2001) as possible metrics to perform projection dimension selection but do not fully address the issue, resorting to 2-dimensional projections. Neither of the proposed selection methods take into account the effect that the dimension of the MDS projection has on the overall model (as discussed in Section \ref{s:mdsdimselect}). Boisvert, Manchuk and Deutsch (2009) suggest that to best approximate the distances, an $n-1$ dimensional projection of the distance matrix (if there are $n$ data, or triangulation nodes) be used. Minimal truncatation provides the best approximation however, they go on to point out that the use of such a high-dimensional projection could lead to numerical problems. Performing the Interpolation in high dimensions may also be problematic. 
-
-In all of these works the MDS projection is being used to approximate the within-area distances by a set of distances obeying the rules of a Euclidean metric which is the criterion given by Curriero (2006) to ensure the semivariogram is valid. Unlike in the material presented here, the MDS point configuration itself is not used except to obtain a Euclidean approximation to the distance matrix so that the semivariogram can be estimated.
-
-In general kriging methods suffer from having developed as an \textit{ad hoc} set of tools used in the mining industry (Diggle and Ribiero, 2007, preface). Although much work has been done to improve the mathematical basis of kriging, models are not as flexible as GAMs, in particular the incorporation of other covariates, temporal effects and random effects is not straight forward as it is for additive and generalized additive models (in both theory and practise).
-
-\subsection{Further work}
-\label{s:furtherwork}
-
-By changing how the distance matrix is calculated the method can be extended in several different ways. Since distance generation is seen as a black box procedure to the model, any procedure can be used to generate a distance matrix.
-
-A simple change would be to use other shortest path algorithms. For example using the A$^*$ algorithm of Hart, Nilsson and Raphael (1968) (a generalization of Djikstra's algorithm), would remove the restriction that the domain must be a simple polygon (so domains with islands, which occur in ship-board studies are excluded). However, it is not clear that taking the MDS projection would adequately prevent leakage. For example, the MDS projection of an annulus (using within-area distances) would be an expanded annulus. Since the annulus itself is symmetric, the shape would be the same, just the distance between points (across the hole in $p$-space) would reflect their distance around the ring (in $o$-space). It is not clear what would happen in the multi-ring case.
-
-It might also be interesting to investigate the use of other measures to populate the distance matrix. Moving into three dimensions could be useful, finding the shortest path over say a mountain range, which would include minimising changes in altitude as well as avoiding obstacles. Alternatively, an approach that takes into account fuel cost or taking into account difficult conditions (e.g. a bog or ford that can be crossed but at additional cost in terms of effort or time) may be useful. Such general cost-distance measures may turn out to be non-metric: the distance from A to B is not the same as the distance from B to A (for example going against versus going with the flow of a river). In this case non-metric MDS must be used, this relies only on the rankings of the data and discards other information, which is probably undesirable.
-
-The framework described here is completely general so it is possible to move out of the realm of spatial smoothing and look at smoothing of distance matrices in general. Scientists often encounter situations in which disparities are more useful than absolute measures. In these cases using the MDS projection of the distances between observations (under some appropriate metric) may lead to better results. For example in microarray studies, the dissimilarities between patients in terms of distances between their gene expression data could be used. It is important to select a suitable distance metric to use since each gene will have a different variance. This heteroskedasticity can clearly be problematic since MDS chooses the largest eigenvalues to project and there is no reason to believe that those genes which are most  variable explain the most about the response. Gentleman et al. (2005) suggest using the Mahalanobis distance in a microarray setting to adjust the distances for the variance in each gene. Although using the Mahalanobis distance (Mahalanobis, 1935) may solve the heteroskedasticity problem, it does not alleviate problems caused by high leverage points which can occur if there is noise in the data. It is conceivable that a combination of measurement error adjustments and the Mahalanobis distance could lead to reliable general distance smoothing; further investigation is clearly required.
-
-
-\subsection{Conclusion}
-
-This article presents a new way of addressing leakage, a common issue in finite area smoothing. The solution presented here embeds information about the boundary into the inter-point distances and then projects these distances into high-dimensional Euclidean space allowing conventional smoothers to be applied to the situation. The method is relatively simple conceptually and is implemented in standard software, making it easy to to for non-statisticians. MDSDS performs as well, if not better than the current ``gold standard'': the soap film smoother of Wood et al (2008). This is the case both in simulation and when analysing real data. 
-
-The method can also be used in the more general setting when distances have been collected or calculated from existing data when the response is non-linear. The authors see this as an area for significant further development in the future.
 
 \section*{Acknowledgements}
 
@@ -468,16 +531,19 @@ For example in Figure \ref{wdia} ($iv$), the path $(v_1, v_2, v_3)$ is longer th
 \item (ITER) Iterate further DELETE and ALTER steps (in pairs) until there has been no change in $\mathcal{P}$ from one run to the next (i.e. convergence) (Figure \ref{wdia}, ($vi$)).
 \end{enumerate}
 
-% diagram for finding the shortest path in W
-\begin{figure}
-% trim order l b r t
-%\psfrag{exp1}[]{$\mathcal{P}_1$}
-%\includegraphics[trim=0in 0.5in 0in 0.25in][figs/wdia.pdf} \\
-\includegraphics[angle=90, height=\textheight,trim=0in 0.5in 0in 0.25in]{figs/wdia.pdf} \\
-\caption{The green lines in ($i$) to ($vi$) show the steps forming the shortest path as the algorithm progresses from initial state to final, shortest path (bottom right). See Appendix B for more details.}
-\label{wdia}
-% generated by figs/distanceexplanation.R
-\end{figure}
+%% diagram for finding the shortest path in W
+%\begin{figure}
+%% trim order l b r t
+%%\psfrag{exp1}[]{$\mathcal{P}_1$}
+%%\includegraphics[trim=0in 0.5in 0in 0.25in][figs/wdia.pdf} \\
+%\includegraphics[angle=90, height=\textheight,trim=0in 0.5in 0in 0.25in]{figs/wdia.pdf} \\
+%\label{wdia}
+%%\caption{The green lines in ($i$) to ($vi$) show the steps forming the shortest path as the algorithm progresses from initial state to final, shortest path (bottom right). See Appendix B for more details.}
+%% generated by figs/distanceexplanation.R
+%\end{figure}
+%
+
+
 
 Of course, if there is a direct path between $p_1$ and $p_2$ then the Euclidean distance between the points can be used and the above algorithm is not run.
 
@@ -494,10 +560,10 @@ The algorithm is as follows, with notation and routines (INIT, DELETE, ALTER and
 \begin{enumerate}
  \item Begin by creating a sparse grid of within the simple polygon $\Gamma$ and calculate the ($M$, say) non-Euclidean within-area paths between all pairs of points in the grid, as above. Store these paths as $\mathcal{P}_1,\ldots, \mathcal{P}_M$.
 \item For each unique pairing of $p_i$ and $p_j$ in the full data set, calculate the path using one of the following:
-	\begin{enumerate}
-	\item Find a $\mathcal{P}_k$ such that the path between $p_i$ and one end of $\mathcal{P}_k$ and $p_j$ and the other end of $\mathcal{P}_k$ is Euclidean within $\Gamma$. Join $p_i$ and $p_j$ onto the appropriate ends of $\mathcal{P}_k$ and alternate between DELETE and ALTER steps until convergence.
-	\item If no $\mathcal{P}_k$ can be found calculate the path between $p_i$ and $p_j$ as above. 
-	\end{enumerate}
+\begin{enumerate}
+\item Find a $\mathcal{P}_k$ such that the path between $p_i$ and one end of $\mathcal{P}_k$ and $p_j$ and the other end of $\mathcal{P}_k$ is Euclidean within $\Gamma$. Join $p_i$ and $p_j$ onto the appropriate ends of $\mathcal{P}_k$ and alternate between DELETE and ALTER steps until convergence.
+\item If no $\mathcal{P}_k$ can be found calculate the path between $p_i$ and $p_j$ as above. 
+\end{enumerate}
 \end{enumerate}
 
 Note that those paths between points in the sparse grid which are Euclidean are not stored since it is always at least as expensive to store, add to and optimise those paths then calculating them from scratch. If the required path is Euclidean anyway, then retrieving a Euclidean path, adding in $p_i$ and $p_j$, and then iterating over ALTER and DELETE steps to make it both the shortest and a Euclidean path will take longer than just creating a Euclidean path to begin with. If the path between $p_i$ and $p_j$ is non-Euclidean then the non-Euclidean part of the path must lie outside $\mathcal{P}_k$ (by definition, if $\mathcal{P}_k$ were Euclidean) and therefore will take the same number of operations to find the boundary crossing points and calculate the shortest path around the feature locally as it will to calculating the whole path from scratch.

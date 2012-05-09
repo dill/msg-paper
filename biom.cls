@@ -4,6 +4,11 @@
 % Copyright (C) The International Biometric Society 2006
 % for LaTeX version 2E, by Techbooks, India
 %
+% Change history
+
+% Modified by: Aptara
+% Modification date: 27th Dec 2010
+% Modification: \@fptop, \@fpbot, to make compatible with latest rotating.sty
 
 % Preamble to this style file
 
@@ -510,9 +515,10 @@
 \setlength\intextsep{ 12pt plus 5.5pt minus 2pt}
 \setlength\dblfloatsep{ 12pt plus 5.5pt minus 2pt }
 \setlength\dbltextfloatsep{ 15pt plus 4.5pt minus 3pt}
-\setlength\@fptop{ 0pt plus 0fil}
+\setlength\@fptop{ 0pt plus 1fil}% Aptara
 \setlength\@fpsep{ 12pt plus 0fil }
-\setlength\@fpbot{ 0pt plus 0fil }
+\setlength\@fpbot{ 0pt plus 1fil }% Aptara
+
 \setlength\@dblfptop{ 0pt plus 0fil}
 \setlength\@dblfpsep{ 12pt plus 0fil}
 \setlength\@dblfpbot{ 0pt plus 0fil}
@@ -1279,13 +1285,16 @@
 %    \reset@font\normalsize{\bf ABSTRACT}\\\reset@font\large
 %} % SFB 0.1.01
 %
+
+%  12/28/2010 -- change to make margins of summary same as those of manuscript
+
 \newbox\absbox
-\def\abstract{\global\setbox\absbox\vbox\bgroup\hsize\textwidth\small\leftskip2.88pc\rightskip\leftskip\noindent{\sc
+\def\abstract{\global\setbox\absbox\vbox\bgroup\hsize\textwidth\small\leftskip0pc\rightskip\leftskip\noindent{\sc
 Summary:\hskip1em}\ignorespaces}
 \def\endabstract{\egroup}
 
 \newbox\keywdbox
-\def\keywords{\global\setbox\keywdbox\vbox\bgroup\hsize\textwidth\small\leftskip3pc\rightskip\leftskip\noindent{\sc
+\def\keywords{\global\setbox\keywdbox\vbox\bgroup\hsize\textwidth\small\leftskip0pc\rightskip\leftskip\noindent{\sc
 Key words:\hskip1em}\ignorespaces}
 \def\endkeywords{\egroup}
 
@@ -1938,7 +1947,7 @@ to \linewidth\bgroup\@eqnsel\hskip\@centering$\displaystyle\tabskip\z@
 \newcounter{theorem}
 \renewcommand\thetheorem{\arbic{theorem}}
 \newtheorem{theorem}{Theorem}%[theorem]
-\newtheorem{algorithm}{Algorithm}%[theorem]
+%\newtheorem{algorithm}{Algorithm}%[theorem]
 \newtheorem{corollary}{Corollary}%[section]%[theorem]
 \newtheorem{fact}{Fact}%[section]
 \newtheorem{property}{Property}%[section]
@@ -1969,7 +1978,7 @@ to \linewidth\bgroup\@eqnsel\hskip\@centering$\displaystyle\tabskip\z@
 \newtheorem{step}{Step}%[section]
 
 \gdef\PROOF{Proof}
-\gdef\ALGO{Algorithm}
+%\gdef\ALGO{Algorithm}
 \gdef\CORO{Corollary}
 \gdef\FACT{Fact}
 \gdef\PROPRT{Property}
@@ -2065,4 +2074,5 @@ to \linewidth\bgroup\@eqnsel\hskip\@centering$\displaystyle\tabskip\z@
   \AtBeginDocument{\usepackage{endrotfloat}}
 \fi
 % end of Biom.cls
+
 
