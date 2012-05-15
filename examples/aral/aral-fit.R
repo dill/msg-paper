@@ -43,7 +43,7 @@ pred.grid<-data.frame(x=gxx[pred.onoff],y=gyy[pred.onoff])
 
 ######################################################################
 # plot setup
-par(mfrow=c(2,2),las=1,mgp=c(1.5,0.75,0),mar=c(3,3,2,2),cex.axis=0.5,cex.lab=0.7)
+par(mfrow=c(3,2),las=1,mgp=c(1.5,0.75,0),mar=c(3,3,2,2),cex.axis=0.5,cex.lab=0.7)
 
 # set the x and y values for the image plot
 aral.lab<-latlong2km(unique(sort(aral$lo)),unique(sort(aral$la)),59.5,45)
@@ -72,6 +72,7 @@ lines(bnd,lwd=2)
 
 ######################################################################
 #### soap 
+make_soap_grid<-msg:::make_soap_grid
 s.knots<-make_soap_grid(bnd,c(12,12))
 
 soap.fit<-gam(z~s(x,y,k=49,bs="so",xt=list(bnd=list(bnd))),knots=s.knots,
@@ -105,33 +106,39 @@ mds.fit<-gam.mds(aral.dat,pred.grid,bnd,grid.res=c(20,20),family=Gamma(link="log
 plot.it(mds.fit,"mdsds")
 
 
-########################################################################
-###### fit the GLTPS
-#source("pe.R")
-#source("tps.R")
-#source("wr-wrapper")
-#library(fields)
-#
-#
-#n.knots<-100 # as in the paper
-#xk<-cover.design(matrix(c(aral.dat$x,aral.dat$y),
-#                        length(aral.dat$x),2),n.knots)
-#xk<-matrix(c(xk[,1],xk[,2]),length(xk[,1]),2)
-#beta.wr<-wr(gendata.samp,list(x=xk[,1],y=xk[,2]),bnd)
-#pred.wr<-wr.pred(gendata,list(x=xk[,1],y=xk[,2]),beta.wr,bnd)
-#
-#pred.mat<-matrix(NA,gm,gn)
-#pred.mat[pred.onoff]<-pred.wr
-#image(pred.mat,x=unique(gxx),y=unique(gyy),main="tprs",xlab="km (East)",ylab="km (North)",xlim=xlims,ylim=ylims,asp=1,zlim=zlims)
-#contour(z=pred.mat,x=unique(gxx),y=unique(gyy),add=TRUE,labcex=0.5,levels=z.levels)
-#lines(bnd,lwd=2)
+#######################################################################
+##### fit the GLTPS
+source("pe.R")
+source("tps.R")
+source("wr-wrapper.R")
+library(fields)
+
+
+create_distance_matrix<-msg:::create_distance_matrix
+
+n.knots<-60 
+xk<-cover.design(matrix(c(aral.dat$x,aral.dat$y),
+                        length(aral.dat$x),2),n.knots)
+xk<-matrix(c(xk[,1],xk[,2]),length(xk[,1]),2)
+beta.wr<-wr(aral.dat,list(x=xk[,1],y=xk[,2]),bnd,family="gamma")
+pred.wr<-wr.pred(pred.grid,list(x=xk[,1],y=xk[,2]),beta.wr,bnd)
+
+pred.wr<-exp(pred.wr)
+
+
+pred.mat<-matrix(NA,gm,gn)
+pred.mat[pred.onoff]<-pred.wr
+image(pred.mat,x=unique(gxx),y=unique(gyy),main="gltps",xlab="km (East)",ylab="km (North)",xlim=xlims,ylim=ylims,asp=1,zlim=zlims)
+contour(z=pred.mat,x=unique(gxx),y=unique(gyy),add=TRUE,labcex=0.5,levels=z.levels)
+lines(bnd,lwd=2)
 
 
 
-dev.copy2pdf(file="aral-plot.pdf",height=7,width=7)
-dev.copy2eps(file="aral-plot.eps",height=7,width=7)
+dev.copy2pdf(file="aral-plot.pdf",height=10.5,width=7)
+dev.copy2eps(file="aral-plot.eps",height=10.5,width=7)
 
 
+quartz()
 
 plot(mds.fit$gcv.dim,xlab="MDS projection dimension",ylab="GCV score",type="l")
 
