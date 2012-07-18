@@ -1,48 +1,6 @@
-%  template.tex for Biometrics papers
-%
-%  This file provides a template for Biometrics authors.  Use this
-%  template as the starting point for creating your manuscript document.
-%  See the file biomsample.tex for an example of a full-blown manuscript.
-
-%  ALWAYS USE THE referee OPTION WITH PAPERS SUBMITTED TO BIOMETRICS!!!
-%  You can see what your paper would look like typeset by removing
-%  the referee option.  Because the typeset version will be in two
-%  columns, however, some of your equations may be too long. DO NOT
-%  use the \longequation option discussed in the user guide!!!  This option
-%  is reserved ONLY for equations that are impossible to split across 
-%  multiple lines; e.g., a very wide matrix.  Instead, type your equations 
-%  so that they stay in one column and are split across several lines, 
-%  as are almost all equations in the journal.  Use a recent version of the
-%  journal as a guide. 
-%  
-%\documentclass[useAMS,referee, usegraphicx]{biom}
 \documentclass[useAMS, referee]{biom}
-%\documentclass[useAMS, usegraphicx]{biom}
 %\documentclass[useAMS]{biom}
-%
-%  If your system does not have the AMS fonts version 2.0 installed, then
-%  remove the useAMS option.
-%
-%  useAMS allows you to obtain upright Greek characters.
-%  e.g. \umu, \upi etc.  See the section on "Upright Greek characters" in
-%  this guide for further information.
-%
-%  If you are using AMS 2.0 fonts, bold math letters/symbols are available
-%  at a larger range of sizes for NFSS release 1 and 2 (using \boldmath or
-%  preferably \bmath).
-% 
-%  Other options are described in the user guide. Here are a few:
-% 
-%  -  If you use Patrick Daly's natbib  to cross-reference your 
-%     bibliography entries, use the usenatbib option
-%
-%  -  If you use \includegraphics (graphicx package) for importing graphics
-%     into your figures, use the usegraphicx option
-% 
-%  If you wish to typeset the paper in Times font (if you do not have the
-%  PostScript Type 1 Computer Modern fonts you will need to do this to get
-%  smoother fonts in a PDF file) then uncomment the next line
-%  \usepackage{Times}
+
 \usepackage{amsmath}
 \usepackage[pdftex]{graphicx}
 \usepackage{url}
@@ -52,7 +10,6 @@
 
 
 %%%%% PLACE YOUR OWN MACROS HERE %%%%%
-
 \def\bSig\mathbf{\Sigma}
 \newcommand{\VS}{V\&S}
 \newcommand{\tr}{\mbox{tr}}
@@ -69,21 +26,7 @@
 \newcommand{\gfrac}[2]{\mbox{$ { \textstyle{ \frac{#1}{#2} }\displaystyle}$}}
 \newcommand{\R}{{\sf R }}
 \newcommand{\ts}{^T}
-%  The rotating package allows you to have tables displayed in landscape
-%  mode.  The rotating package is NOT included in this distribution, but
-%  can be obtained from the CTAN archive.  USE OF LANDSCAPE TABLES IS
-%  STRONGLY DISCOURAGED -- create landscape tables only as a last resort if
-%  you see no other way to display the information.  If you do do this,
-%  then you need the following command.
 
-%\usepackage[figuresright]{rotating}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%  Here, place your title and author information.  Note that in 
-%  use of the \author command, you create your own footnotes.  Follow
-%  the examples below in creating your author and affiliation information.
-%  Also consult a recent issue of the journal for examples of formatting.
 
 \title[Finite area smoothing with generalized distance splines]{Finite area smoothing with generalized distance splines}
 
@@ -180,11 +123,8 @@ In ecology one would often like to create a smooth map of some noisy response as
 % leakage example 
 \begin{figure}
 \centering
-% trim order l b r t
-%\includegraphics{figs/ramsay-leak.pdf}\\
 \includegraphics[width=0.45\textwidth]{examples/ramsay/ramsay-real.pdf}\\
-%\caption{An example of leakage on the (modified) Ramsay horseshoe (referred to simply as the Ramsay horseshoe here; Wood et al, 2008). A thin plate regression spline was fit to data sampled from the function on the top, the model smooths across the gap in the middle of the domain (bottom).}
-\caption{Top: the modified Ramsay horseshoe function from Wood et al (2008). Below: predictions from models using thin plate regression splines (``tprs''), MDSDS (``mdsds''), the soap film smoother (``soap'') and geodesic low-rank thin plate splines (``gltps'') when 600 points were sampled from the horseshoe and standard normal noise was added. Note that the predictions from the thin plate regression spline fit shows severe leakage.}
+\caption{Top: the modified Ramsay horseshoe function from Wood et al (2008). Below: predictions from models using thin plate regression splines (``tprs''), MDSDS (``mdsds''), the soap film smoother (``soap'') and geodesic low-rank thin plate splines (``gltps'') when 600 points were sampled from the horseshoe and standard normal noise was added. Note that the predictions from the thin plate regression spline fit shows severe leakage. This figure appears in colour in the electronic version of this article.}
 \label{leakage}
 \end{figure}
 
@@ -377,7 +317,7 @@ An obvious question is whether we actually need $\cal D$ to be larger than 2 in 
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{examples/wt2/wt2-plot.pdf} \\
-\caption{Left to right: Test function over the peninsulae domain, points in the domain and finally their projection into 2-dimensional p-space when within-area distances are used to calculate the distance matrix. The p-space plot shows that some squashing can happen in two dimensions. The large left peninsula and some of the smaller peninsulae have lost their `width' and, in fact, points within them have lost ordering.}
+\caption{Left to right: Test function over the peninsulae domain, points in the domain and finally their projection into 2-dimensional p-space when within-area distances are used to calculate the distance matrix. The p-space plot shows that some squashing can happen in two dimensions. The large left peninsula and some of the smaller peninsulae have lost their `width' and, in fact, points within them have lost ordering. This figure appears in colour in the electronic version of this article.}
 \label{wt2-plot}
 % generated by examples/wt2/wt2-plot.R
 \end{figure}
@@ -423,7 +363,7 @@ As can be seen in Figure \ref{ramsay-results}, the thin plate regression spline 
 %soap noise= 10 -1 p= 0.8533422 
 %gltps noise= 10 -1 p= 0.05883376 
 
-\subsection{Peninsulae}
+\subsection{Peninsulae domain}
 
 The results from the modified Ramsay horseshoe are encouraging. However the domain is not particularly realistic. To further explore the performance of MDSDS a more realistic domain was used. The domain, which attempts to mimic a coastline, is shown in the left panel of Figure \ref{wt2-plot}.
 
@@ -445,11 +385,10 @@ Figure \ref{wt2-boxplots} shows the boxplots of the $\log$ of the MSE per realis
 \begin{figure}
 \centering
 \includegraphics{examples/wt2/wt2-result.pdf} \\
-\caption{Boxplots of logarithm of mean MSE per realisation for the models tested on the peninsulae domain at three noise levels. At each noise level, the median mean MSE was lower for MDSDS than for the thin plate regression spline or soap film smoother. A paired Wilcoxon signed rank test showed that the difference between MDSDS and the soap film smoother was only non-significant at the 0.35 noise level.}
+\caption{Boxplots of logarithm of mean MSE per realisation for the models tested on the peninsulae domain at three noise levels. At each noise level, the median mean MSE was lower for MDSDS than for the thin plate regression spline, soap film smoother or GLTPS. A paired Wilcoxon signed rank test showed that the only significant difference (at the 5\% leve) occurred between MDSDS and the soap film smoother at the 0.35 noise level.}
 \label{wt2-boxplots}
 % generated by examples/wt2/wt2-boxplot.R
 \end{figure}
-
 
 
 \subsection{Aral sea}
@@ -473,7 +412,7 @@ Predictions from the models over a grid of 496 points are shown in Figure \ref{a
 \begin{figure}
 \centering
 \includegraphics[height=0.8\textheight]{examples/aral/aral-plot.pdf}
-\caption{Aral sea analysis. Top to bottom, left to right. First row: raw data, predicted surface for thin plate regression spline. Second row: predicted surfaces for MDSDS and the soap film smoother. Bottom row: predicted surface for GLTPS. The latter three avoid the leakage seen in the $(-50, 50)$ region of the thin plate regression spline fit.}
+\caption{Aral sea analysis. Top to bottom, left to right. First row: raw data, predicted surface for thin plate regression spline. Second row: predicted surfaces for MDSDS and the soap film smoother. Bottom row: predicted surface for GLTPS. The latter three avoid the leakage seen in the $(-50, 50)$ region of the thin plate regression spline fit. This figure appears in colour in the electronic version of this article.}
 \label{aral-plot}
 % generated by examples/aral/aral-plot.R
 \end{figure}
