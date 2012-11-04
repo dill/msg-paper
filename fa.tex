@@ -1,82 +1,64 @@
-%\documentclass[useAMS, referee]{biom}
-\documentclass[useAMS, referee, usenatbib]{biom}
-%\documentclass[useAMS]{biom}
+\RequirePackage{fix-cm}
+%
+%\documentclass{svjour3}                     % onecolumn (standard format)
+%\documentclass[smallcondensed]{svjour3}     % onecolumn (ditto)
+\documentclass[smallextended]{svjour3}       % onecolumn (second format)
+%\documentclass[twocolumn]{svjour3}          % twocolumn
+%
+\smartqed  % flush right qed marks, e.g. at end of proof
 
+\usepackage{graphicx}
+
+\usepackage{mathptmx}      % use Times fonts if available on your TeX system
 \usepackage{amsmath}
-\usepackage[pdftex]{graphicx}
 \usepackage{url}
 \usepackage{bm}
 \usepackage{amssymb}
 \usepackage{psfrag}
 %\usepackage{natbib}
 
-
-%%%%% PLACE YOUR OWN MACROS HERE %%%%%
-%\def\bSig\mathbf{\Sigma}
-%\newcommand{\VS}{V\&S}
-%\newcommand{\tr}{\mbox{tr}}
 \newcommand{\beq}{\begin{equation}}
 \newcommand{\eeq}{\end{equation}}
-%\newcommand{\dif}[2]{\frac{{\rm d} #1}{{\rm d} #2}}
-%\newcommand{\ildif}[2]{{\rm d} #1/{{\rm d} #2 }}
-%\newcommand{\ilpdif}[2]{\partial #1/{\partial #2 }}
 \newcommand{\pdif}[2]{\frac{\partial #1}{\partial #2}}
 \newcommand{\pddif}[3]{\frac{\partial^2 #1}{\partial #2 \partial #3}}
-%\newcommand{\ilpddif}[3]{\partial^2 #1/{\partial #2 \partial #3}}
-%%\newcommand{\bm}[1]{\mbox{\boldmath $#1$}}
-%\newcommand{\comb}[2]{\left (\begin{array}{c}{#1}\\{#2}\end{array}\right )}
-%\newcommand{\gfrac}[2]{\mbox{$ { \textstyle{ \frac{#1}{#2} }\displaystyle}$}}
-%\newcommand{\R}{{\sf R }}
 \newcommand{\ts}{^T}
 
-
-\title[Finite area smoothing with generalized distance splines]{Finite area smoothing with generalized distance splines}
-
-
-\author{David L. Miller$^{1*}$\email{dave@ninepointeightone.net}, Simon N. Wood$^{2}$\\
-$^{1}$Department of Natural Resources Science, University of Rhode Island, Kingston, Rhode Island 02881, USA\\
-$^{2}$Department of Mathematical Sciences, University of Bath, Claverton Down, Bath BA2 7AY, UK}
-
+% Insert the name of "your journal" with
+\journalname{Environmental and Ecological Statistics}
+%
 \begin{document}
 
-\label{firstpage}
+\title{Finite area smoothing with generalized distance splines}
 
-\begin{abstract}
-Most conventional spatial smoothers smooth with respect to the Euclidean distance between observations, even though this distance may not be a meaningful measure of spatial proximity, especially when boundary features are present. When domains have complicated boundaries leakage (the inappropriate linking of parts of the domain which are separated by physical barriers) can occur. To overcome this problem, we develop a method of smoothing with respect to generalized distances, such as within domain distances. We obtain the generalized distances between our points and then use multidimensional scaling to find a configuration of our observations in a Euclidean space of 2 or more dimensions, such that the Euclidian distances between points in that space closely approximate the generalized distances between the points. Smoothing is performed over this new point configuration, using a conventional smoother. To mitigate the problems associated with smoothing in high dimensions we use a generalization of thin plate spline smoothers proposed by \cite{Duchon:1977tr}. This general method for smoothing with respect to generalized distances improves on the performance of previous within domain distance spatial smoothers, and often provides a more natural model than the soap film approach of \cite{Wood:2008vo}. The smoothers are of the linear basis with quadratic penalty type easily incorporated into a range of statistical models.
-\end{abstract}
+%\titlerunning{Short form of title}        % if too long for running head
 
-%  Please place your key words in alphabetical order, separated
-%  by semicolons, with the first letter of the first word capitalized,
-%  and a period at the end of the list.
-%
+\author{David L. Miller         \and
+        Simon N. Wood
+}
 
-\begin{keywords}
-Finite area smoothing; generalized additive model; multidimensional scaling; spatial modelling; splines.
-\end{keywords}
+%\authorrunning{Short form of author list} % if too long for running head
 
-%  As usual, the \maketitle command creates the title and author/affiliations
-%  display 
+\institute{David L. Miller \at
+              Department of Natural Resources Science, University of Rhode Island, Kingston, Rhode Island 02881, USA \\
+              \email{dave@ninepointeightone.net}
+           \and
+           Simon N. Wood \at
+              Department of Mathematical Sciences, University of Bath, Claverton Down, Bath BA2 7AY, UK
+}
+
+\date{Received: date / Accepted: date}
+% The correct dates will be entered by the editor
+
 
 \maketitle
 
+\begin{abstract}
+Most conventional spatial smoothers smooth with respect to the Euclidean distance between observations, even though this distance may not be a meaningful measure of spatial proximity, especially when boundary features are present. When domains have complicated boundaries leakage (the inappropriate linking of parts of the domain which are separated by physical barriers) can occur. To overcome this problem, we develop a method of smoothing with respect to generalized distances, such as within domain distances. We obtain the generalized distances between our points and then use multidimensional scaling to find a configuration of our observations in a Euclidean space of 2 or more dimensions, such that the Euclidian distances between points in that space closely approximate the generalized distances between the points. Smoothing is performed over this new point configuration, using a conventional smoother. To mitigate the problems associated with smoothing in high dimensions we use a generalization of thin plate spline smoothers proposed by \cite{Duchon:1977tr}. This general method for smoothing with respect to generalized distances improves on the performance of previous within domain distance spatial smoothers, and often provides a more natural model than the soap film approach of \cite{Wood:2008vo}. The smoothers are of the linear basis with quadratic penalty type easily incorporated into a range of statistical models.
+\keywords{Finite area smoothing \and generalized additive model \and multidimensional scaling \and spatial modelling \and splines.}
+% \PACS{PACS code1 \and PACS code2 \and more}
+% \subclass{MSC code1 \and MSC code2 \and more}
+\end{abstract}
 
-%  If you are using the referee option, a new page, numbered page 1, will
-%  start after the summary and keywords.  The page numbers thus count the
-%  number of pages of your manuscript in the preferred submission style.
-%  Remember, ``Normally, regular papers exceeding 25 pages and Reader Reaction 
-%  papers exceeding 12 pages in (the preferred style) will be returned to 
-%  the authors without review. The page limit includes acknowledgements, 
-%  references, and appendices, but not tables and figures. The page count does 
-%  not include the title page and abstract. A maximum of six (6) tables or 
-%  figures combined is often required.''
-
-%  You may now place the substance of your manuscript here.  Please use
-%  the \section, \subsection, etc commands as described in the user guide.
-%  Please use \label and \ref commands to cross-reference sections, equations,
-%  tables, figures, etc.
-%
-%  Please DO NOT attempt to reformat the style of equation numbering!
-%  For that matter, please do not attempt to redefine anything!
 \section{Introduction \label{IN}}
 
 In ecology one would often like to create a smooth map of some noisy response as a function of geographical coordinates. In such cases, care must be taken to account for the structure of the domain which is being modelled. If the domain is bounded (\textit{finite area smoothing}) then problems can occur when the smoother does not respect the boundary shape appropriately, especially when the shape of the boundary is complex. This complexity may manifest itself as some peninsula-like feature(s) in the domain with notably different observation values on either side of the feature. Features such as peninsulae give rise to a phenomenon known as \emph{leakage}. The top two panels of Figure \ref{leakage} shows an example of leakage (taken from \cite{Wood:2008vo}) where the high values in the upper half of the domain (top panel) leak across the gap to the lower values below and vice versa (second panel). The phenomenon is problematic since it causes the fitted surface to be mis-estimated; this can then lead to incorrect inference, in particular the mis-identification of ``hot spots'' in biological populations.
@@ -380,17 +362,71 @@ The MDSDS has an interesting link to kriging with within-area distances. For exa
 
 Further work would involve considering more biologically motivated measures of distance. For example, distances based on the minimum energetic cost of moving between  two locations. It is also of interest to investigate further the use of MDSDS for smoothing with respect to distances that have no geographic basis (the socio-economic similarity of parliamentary constituencies, or measures of genetic relatedness, for example), and we are investigating this at present.
 
-\section*{Supplementary Materials}
 
-Web Appendices referenced in Sections \ref{proposed-model} and \ref{examples} are available with this paper at the Biometrics website on Wiley Online Library.
 
-\section*{Acknowledgements}
 
+%
+%\section{Introduction}
+%\label{intro}
+%Your text comes here. Separate text sections with
+%\section{Section title}
+%\label{sec:1}
+%Text with citations \cite{RefB} and \cite{RefJ}.
+%\subsection{Subsection title}
+%\label{sec:2}
+%as required. Don't forget to give each section
+%and subsection a unique label (see Sect.~\ref{sec:1}).
+%\paragraph{Paragraph headings} Use paragraph headings as needed.
+%\begin{equation}
+%a^2+b^2=c^2
+%\end{equation}
+%
+%% For one-column wide figures use
+%\begin{figure}
+%% Use the relevant command to insert your figure file.
+%% For example, with the graphicx package use
+%%  \includegraphics{example.eps}
+%% figure caption is below the figure
+%\caption{Please write your figure caption here}
+%\label{fig:1}       % Give a unique label
+%\end{figure}
+%%
+%% For two-column wide figures use
+%\begin{figure*}
+%% Use the relevant command to insert your figure file.
+%% For example, with the graphicx package use
+%%  \includegraphics[width=0.75\textwidth]{example.eps}
+%% figure caption is below the figure
+%\caption{Please write your figure caption here}
+%\label{fig:2}       % Give a unique label
+%\end{figure*}
+%%
+%% For tables use
+%\begin{table}
+%% table caption is above the table
+%\caption{Please write your table caption here}
+%\label{tab:1}       % Give a unique label
+%% For LaTeX tables use
+%\begin{tabular}{lll}
+%\hline\noalign{\smallskip}
+%first & second & third  \\
+%\noalign{\smallskip}\hline\noalign{\smallskip}
+%number & number & number \\
+%number & number & number \\
+%\noalign{\smallskip}\hline
+%\end{tabular}
+%\end{table}
+
+
+\begin{acknowledgements}
 David wishes to thank EPSRC for financial support during his PhD at the University of Bath.
+\end{acknowledgements}
 
-\bibliographystyle{biom}\bibliography{fa-refs.bib}
+% BibTeX users please use one of
+\bibliographystyle{spbasic}      % basic style, author-year citations
+\bibliography{fa-refs.bib}   % name your BibTeX data base
 
-\label{lastpage}
 
 \end{document}
+% end of file template.tex
 
