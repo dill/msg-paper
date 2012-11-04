@@ -111,7 +111,7 @@ Within this framework it is straightforward to allow $\eta_i$ to depend on multi
 
 There 3 main types of existing approach to dealing with the finite area smoothing problem.
 
-\subsection*{Partial differential equation methods}
+\subsection{Partial differential equation methods}
 
 \cite{Ramsay:2002uo} exploited the link between smoothing with differential operator based penalties and partial differential equations to produce a smoother defined as the solution to a particular PDE problem defined only over a finite area. His FELSPINE method uses a finite element method to compute a smoother, based on the penalty 
 \beq
@@ -124,7 +124,7 @@ Where $\Omega$ is the region of the $x_1$, $x_2$ plane of interest. Ramsay had t
 
 The soap film approach has the basis-penalty form that is convenient for applied work and solves the boundary leakage problem, but basis setup is quite computationally expensive, and for many applications the approach is less natural than smoothing using within domain distances. A further problem with the soap film approach is that no distinction exists between `open' boundaries (for example a boundary that is simply the limit of the region surveyed) and `hard' boundaries (real physical barriers).
 
-\subsection*{Within-area distances}
+\subsection{Within-area distances}
 
 \cite{Wang:2007tf} propose to replace straight-line distances with `geodesic' distances in a smoother that is a sort of approximate thin plate spline (Geodesic Low-rank Thin Plate Splines, GLTPS). To calculate the geodesic distances, a graph is constructed in which each vertex is the location of an observation and is connected only to its $k$ nearest neighbours. The within-area distances between each vertex pair is approximated using  Floyd's algorithm \citep{Floyd:1962:A9S:367766.368168} to find the shortest path through the graph. This algorithm is cubic in the number of data, making the approach costly for large datasets. At large sample sizes the geodesic distances will tend towards `within-area distance', i.e. the shortest path between two point that lies entirely within the domain of interest \citep{Bernstein:2000tp}.
 
@@ -134,7 +134,7 @@ Wang and Ranalli use their geodesic distances in place of the usual Euclidean di
 
 Both methods appear to work relatively well. However, the combination of an un-modified null space, the opacity of the penalty meaning and $O(n^3)$ computational cost are of some concern for practical work. For these reasons it seems worthwhile to investigate alternative ways of using the within-area distance idea, avoiding these difficulties.
 
-\subsection*{Domain warping}
+\subsection{Domain warping}
 
 
 Paul Eilers (in a seminar at University of Munich in 2006) suggested conformally mapping the smoothing domain to a convex one  via the Schwarz-Christoffel transformation \citep{Driscoll:2002tq}. The idea is that smoothing can then be conducted on the convex domain, without leakage problems. The first author has extensively investigated such an approach \citep[Chapter 3]{Miller:2012wy}, but there are insurmountable difficulties associated with the extreme modification of inter-observation distances necessary to achieve domain convexity, which cause artefacts that are significantly more problematic than the leakage effects that the method seeks to avoid. 
@@ -421,7 +421,7 @@ David wishes to thank EPSRC for financial support during his PhD at the Universi
 \end{acknowledgements}
 
 % BibTeX users please use one of
-%\bibliographystyle{spbasic}      % basic style, author-year citations
+\bibliographystyle{spbasic}      % basic style, author-year citations
 \bibliography{fa-refs.bib}   % name your BibTeX data base
 
 
