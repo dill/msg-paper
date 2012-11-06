@@ -60,19 +60,20 @@ absorb.con <- function(X,S,C) {
    list(X=X,S=S,qrc=qrc)
 }
 
-fit.tps <- function(y,x,xk=x,lambda=NULL,D.xxk=NULL,D.xkxk=NULL) { 
-   tp <- XSC(x,xk,D.xxk,D.xkxk)	# get tps matrices
-   tp <- absorb.con(tp$X,tp$S,tp$C) # make unconstrained 
-#   ev <- eigen(tp$S,symmetric=TRUE) # get sqrt penalty, rS 
-#   rS <- ev$vectors%*%(ev$values^.5*t(ev$vectors)) 
-   rS<-sqrt(diag(nrow(xk)))
-   rS[(nrow(xk)-2):nrow(xk),(nrow(xk)-2):nrow(xk)]<-0
+fit.tps <- function(y,x,xk=x,lambda=NULL,D.xxk=NULL,D.xkxk=NULL,
+                    family="normal") { 
+  tp <- XSC(x,xk,D.xxk,D.xkxk)	# get tps matrices
+  tp <- absorb.con(tp$X,tp$S,tp$C) # make unconstrained 
+#  ev <- eigen(tp$S,symmetric=TRUE) # get sqrt penalty, rS 
+#  rS <- ev$vectors%*%(ev$values^.5*t(ev$vectors)) 
+  rS<-sqrt(diag(nrow(xk)))
+  rS[(nrow(xk)-2):nrow(xk),(nrow(xk)-2):nrow(xk)]<-0
 
-   n<-nrow(x)
+  n<-nrow(x)
 
-
-   # objective function for optim to use
-   gcv.objfcn<-function(lambda,tp,y,rS,n){
+  if(family=="normal"){
+    # objective function for optim to use
+    gcv.objfcn<-function(lambda,tp,y,rS,n,ret.mod=FALSE){
 
       lambda<-exp(lambda)
 
@@ -86,11 +87,55 @@ fit.tps <- function(y,x,xk=x,lambda=NULL,D.xxk=NULL,D.xkxk=NULL) {
       trA<-sum(influence(mod)$hat[1:n])
       rss<-sum((y-fitted(mod)[1:n])^2)
       
-      return(n*rss/(n-trA)^2)
-   }
+      if(ret.mod){
+        return(list(mod=mod,trA=trA,gcv=n*rss/(n-trA)^2))
+      }else{
+        return(n*rss/(n-trA)^2)
+      }
+    }
+  }else if(family=="gamma"){
+    # adapted from p139 red book
+    gcv.objfcn<-function(lambda,tp,y,rS,n,ret.mod=FALSE){
 
-   # do the optimisation
-   opt<-optimize(gcv.objfcn,tp=tp,y=y,rS=rS,lower=log(10^-9),upper=log(10^9),n=n)
+      lambda<-exp(lambda)
+
+      n<-nrow(tp$X)
+      X <- rbind(tp$X,rS*sqrt(lambda)) 
+      #z <- c(y,rep(0,ncol(rS)))
+      eta <- log(y)
+
+      norm <- 0; old.norm <-1
+
+      q<-ncol(X)
+
+      while(abs(norm-old.norm)>1e-4*norm){
+        mu<-exp(eta)
+        z<-(y-mu)/mu + eta
+        z[(n+1):(n+q)]<-0
+        
+        mod<-lm(z~X-1)
+
+        b<-mod$coefficients
+        eta<-(X%*%b)[1:n]
+        trA<-sum(influence(mod)$hat[1:n])
+        old.norm<-norm
+        norm<-sum(((z[!is.na(z)]-fitted(mod))[1:n])^2)
+      }
+
+      
+  cat("lambda=",lambda," GCV score=",n*norm/(n-trA)^2,"\n")
+      if(ret.mod){
+        return(list(mod=mod,trA=trA,gcv=n*norm/(n-trA)^2))
+      }else{
+        return(n*norm/(n-trA)^2)
+      }
+    }
+  }else{
+    stop("Bad family!")
+  }
+
+  # do the optimisation
+  opt<-optimize(gcv.objfcn,tp=tp,y=y,rS=rS,lower=log(10^-9),upper=log(10^9),n=n)
 
 #   # plot
 #   V<-rep(0,100)
@@ -106,93 +151,94 @@ fit.tps <- function(y,x,xk=x,lambda=NULL,D.xxk=NULL,D.xkxk=NULL) {
 #   lambda<-V[which.min(V)]
 #   X11()
 
-   # grab the max
-   lambda<-exp(opt$minimum)
+  # grab the max
+  lambda<-exp(opt$minimum)
 
-   # DEBUG - print the GCV score, smoothing parameter
-   #cat("lambda=",lambda,"log(lambda)=",opt$minimum," GCV score=",opt$objective,"\n")
-   
-   # return the fit with the max
-   X <- rbind(tp$X,rS*sqrt(lambda)) # augmented model matrix 
-   z <- c(y,rep(0,ncol(rS)))	# augmented data 
-   mod<-lm(z~X-1)
-   beta<-coef(mod)	# fit model
-   trA<-sum(influence(mod)$hat[1:n])
-   beta<-qr.qy(tp$qrc,c(0,0,0,beta)) # backtransform beta
+  # DEBUG - print the GCV score, smoothing parameter
+  #cat("lambda=",lambda,"log(lambda)=",opt$minimum," GCV score=",opt$objective,"\n")
+  
+  # return the fit with the max
 
-   # useful attributes
-   attr(beta,"knots")<-list(x=xk[,1],y=xk[,2])
-   attr(beta,"edf")<-trA
+  fit<-gcv.objfcn(opt$minimum,tp,y,rS,n,ret.mod=TRUE)
 
-   # give beta a bit of class
-   class(beta)<-"mytps"
+  mod<-fit$mod
+  trA<-fit$trA
 
-   return(beta)
+  beta<-coef(mod)	# fit model
+  beta<-qr.qy(tp$qrc,c(0,0,0,beta)) # backtransform beta
+
+  # useful attributes
+  attr(beta,"knots")<-list(x=xk[,1],y=xk[,2])
+  attr(beta,"edf")<-trA
+
+  # give beta a bit of class
+  class(beta)<-"mytps"
+
+  return(beta)
 }
 
 eval.tps <- function(xp,beta,xk,D.xpxk=NULL) { 
-   # evaluate tps at xp, given parameters, beta, and knots, xk.
-   k <- nrow(xk);n <- nrow(xp) 
-   f <- rep(beta[k+1],n)
-   if(!is.null(D.xpxk)){
-      for (i in 1:k) { 
-         r<-D.xpxk[,i]
-         f <- f + beta[i]*eta(r)
-      } 
-   }else{
-      for (i in 1:k) { 
-         r <- sqrt((xp[,1]-xk[i,1])^2+(xp[,2]-xk[i,2])^2) 
-         f <- f + beta[i]*eta(r)
-      } 
-   }
-   f <- f + beta[k+2]*xp[,1] + beta[k+3]*xp[,2]
+  # evaluate tps at xp, given parameters, beta, and knots, xk.
+  k <- nrow(xk);n <- nrow(xp) 
+  f <- rep(beta[k+1],n)
+  if(!is.null(D.xpxk)){
+    for (i in 1:k) { 
+      r<-D.xpxk[,i]
+      f <- f + beta[i]*eta(r)
+    } 
+  }else{
+    for (i in 1:k) { 
+      r <- sqrt((xp[,1]-xk[i,1])^2+(xp[,2]-xk[i,2])^2) 
+      f <- f + beta[i]*eta(r)
+    } 
+  }
+  f <- f + beta[k+2]*xp[,1] + beta[k+3]*xp[,2]
 }
 
 # wrapper so I can use predict syntax
 predict.mytps<-function(beta,data){
+  if(is.list(data)){
+    data<-matrix(c(pp$x,pp$y),length(pp$x),2)
+  }
 
-   if(is.list(data)){
-      data<-matrix(c(pp$x,pp$y),length(pp$x),2)
-   }
+  knots<-attr(beta,"knots")
+  knots<-matrix(c(knots$x,knots$y),length(knots$x),2)
 
-   knots<-attr(beta,"knots")
-   knots<-matrix(c(knots$x,knots$y),length(knots$x),2)
-
-   return(eval.tps(data,beta,knots))
+  return(eval.tps(data,beta,knots))
 }  
 
 Predict.matrix.tps <- function(beta,xp,D.xpxk=NULL) { 
-   # evaluate tps at xp, given parameters, beta, and knots, xk.
-   # but return evaluations of basis functions
-   # see Predict.matrix() from mgcv
-   if(is.list(xp)|is.data.frame(xp)){
-      xp<-matrix(c(xp$x,xp$y),length(xp$x),2)
-   }
-   k <- nrow(xk);n <- nrow(xp) 
+  # evaluate tps at xp, given parameters, beta, and knots, xk.
+  # but return evaluations of basis functions
+  # see Predict.matrix() from mgcv
+  if(is.list(xp)|is.data.frame(xp)){
+    xp<-matrix(c(xp$x,xp$y),length(xp$x),2)
+  }
+  k <- nrow(xk);n <- nrow(xp) 
 
-   # deal with the knots
-   xk<-attr(beta,"knots")
-   xk<-matrix(c(xk$x,xk$y),length(xk$x),2)
+  # deal with the knots
+  xk<-attr(beta,"knots")
+  xk<-matrix(c(xk$x,xk$y),length(xk$x),2)
 
-   # matrix to hold results
-   f<-matrix(NA,n,k+3)
+  # matrix to hold results
+  f<-matrix(NA,n,k+3)
 
-   if(!is.null(D.xpxk)){
-      for (i in 1:k) { 
-         r<-D.xpxk[,i]
-         f[,i] <- beta[i]*eta(r)
-      } 
-   }else{
-      for (i in 1:k) { 
-         r <- sqrt((xp[,1]-xk[i,1])^2+(xp[,2]-xk[i,2])^2) 
-         f[,i]<-beta[i]*eta(r)
-      } 
-   }
+  if(!is.null(D.xpxk)){
+    for (i in 1:k) { 
+      r<-D.xpxk[,i]
+      f[,i] <- beta[i]*eta(r)
+    } 
+  }else{
+    for (i in 1:k) { 
+      r <- sqrt((xp[,1]-xk[i,1])^2+(xp[,2]-xk[i,2])^2) 
+      f[,i]<-beta[i]*eta(r)
+    } 
+  }
 
-   # unpenalised part
-   f[,k+1]<-rep(beta[k+1],n)
-   f[,k+2]<-beta[k+2]*xp[,1]
-   f[,k+3]<-beta[k+3]*xp[,2]
+  # unpenalised part
+  f[,k+1]<-rep(beta[k+1],n)
+  f[,k+2]<-beta[k+2]*xp[,1]
+  f[,k+3]<-beta[k+3]*xp[,2]
 
-   return(f)
+  return(f)
 }

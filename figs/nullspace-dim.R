@@ -15,7 +15,8 @@ duchon.nullspace<-choose(2+d-1,d)
 mmin<-min(c(tprs.nullspace,duchon.nullspace))
 mmax<-max(c(tprs.nullspace,duchon.nullspace))
 
-pdf(file="nullspace-dim.pdf",width=4,height=4)
+#pdf(file="nullspace-dim.pdf",width=4,height=4)
+postscript(file="Fig2.eps",width=4,height=4,horizontal=FALSE)
 
 
 par(mgp=c(1.5,0.75,0),mar=c(3,3,2,2),cex.axis=0.5,cex.lab=0.7)
