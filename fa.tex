@@ -64,8 +64,8 @@ In ecology one would often like to create a smooth map of some noisy response as
 % leakage example 
 \begin{figure}
 \centering
-\includegraphics[width=0.45\textwidth]{examples/ramsay/ramsay-real.pdf}\\
-\caption{Top: the modified Ramsay horseshoe function from \protect\cite{Wood:2008vo}. Below: predictions from models using thin plate regression splines (``tprs''), MDSDS (``mdsds''), the soap film smoother (``soap'') and geodesic low-rank thin plate splines (``gltps'') when 600 points were sampled from the horseshoe and standard normal noise was added. Note that the predictions from the thin plate regression spline fit shows severe leakage. This figure appears in colour in the electronic version of this article.
+\includegraphics[width=\textwidth]{examples/ramsay/ramsay-real.pdf}\\
+\caption{Top row (left to right): the modified Ramsay horseshoe function from \protect\cite{Wood:2008vo}, predictions from models using thin plate regression splines (``tprs'') and MDSDS (``mdsds''). Bottom row: predictions from the soap film smoother (``soap'') and geodesic low-rank thin plate splines (``gltps''). Prediction were made from models where the data were 600 points were sampled from the horseshoe and standard normal noise was added. Note that the predicted surface from the thin plate regression spline fit shows severe leakage.
 \label{leakage}}
 \end{figure}
 
@@ -74,11 +74,11 @@ The problem of leakage arises because spatial smoothers consider proximate data 
 
 In this article we propose a general method for smoothing, based on generalized distances between points. We apply this to produce a finite area smoother, based on the \textit{within-area distances} between points in the domain of interest. The general approach uses multidimensional scaling \citep[MDS; e.g.][Chapter 10]{chatfield1980introduction} to associate a location in a $\cal D$ dimensional Euclidian space ({\em p-space}) with each original data point. The Euclidian distances between points in p-space then approximate the original generalized distance between the points. Smoothing is then performed with respect to locations in p-space. Reasonable approximation of the generalized distances by the Euclidean distances in p-space can require $\cal D$ to be greater than the 2-4 dimensions in which conventional multidimensional smoothers work well. For this reason we revisit the general class of smoothers proposed in \cite{Duchon:1977tr}, selecting a smoother that behaves well with increasing dimension. Note that when applied to the finite area problem our generalized distance smoother can be viewed as an  extension of \cite{Wang:2007tf}, albeit somewhat better founded (which we argue below).
 
-The use of multidimensional scaling in spatial statistics is not new. The earliest mention is \cite{Sampson:1992wm} who model spatial covariance functions by computing a distance measure based on the observed spatial covariances (calculated from multiple observations at each location), then project the points using MDS (although only into 2 dimensional space) before smoothing. Comparison with other previous work is covered in Sections 2 and 5.
+The use of multidimensional scaling in spatial statistics is not new, especially in the kriging literature. For example, \cite{Sampson:1992wm} model spatial covariance functions by computing a distance measure based on the observed spatial covariances, then project the points using MDS before kriging (points out of sample are found using a thin plate spline). Their approach differs from ours in a number of ways: (i) they require multiple observations at each location in order to calculate the covariances, (ii) only projections in 2 dimensions are considered and (iii) non-metric MDS is used. Further applications in geostatistics are described in Section \ref{conclusion} and compared to the method proposed here.
 
 The smoother proposed here has the attractive property of being representable using a linear basis expansion with an associated quadratic penalty. Such basis-penalty smoothers have a dual interpretation as Gaussian random fields \citep{rue2005gaussian}, and are appealing because of the ease with which they can be incorporated as components of other models. For example, varying-coefficient models, random/mixed effects models and signal regression models, as well as the focus for this article: generalized additive models \citep[see e.g.][for overviews]{ruppert2003semiparametric, Wood:2006wz}. This flexibility is vital in ecological applications, where a spatial smooth is usually only one part of a much larger model.
 
-Before presenting our proposed method in detail we now briefly review spline type spatial smoothers, and previous approaches to the finite area smoothing problem.
+Before presenting our proposed method in detail we now briefly review spline type spatial smoothers, and previous approaches to the finite area smoothing problem in the additive model literature.
 
 \subsection{Spline smoothing for spatial data}
 
@@ -132,7 +132,7 @@ Wang and Ranalli use their geodesic distances in place of the usual Euclidean di
 
 \cite{ScottHayward:2011tc} propose the Complex Region Spatial Smoother (CReSS) adapting GLTPS in two ways. First, in building the graph, edges are only drawn between two points if the straight line drawn between the points lies entirely within the boundary (boundary vertices are also included, in addition to observations). Second, a set of local radial basis functions are used (with a tuneable parameter controlling the locality of the basis). An AICc-weighted average over a series models with different basis sizes, knot locations and locality of the basis functions is used for prediction. Unlike Wang and Ranalli, the nullspace of the basis is removed.
 
-The combination of an un-modified null space, the opacity of the penalty meaning and $O(n^3)$ computational cost are of some concern for practical work. For these reasons it seems worthwhile to investigate alternative ways of using the within-area distance idea, avoiding these difficulties.
+The combination of an un-modified null space, the opacity of the penalty meaning and $O(n^3)$ computational cost of distance calculation are of some concern for practical work. In the case of CReSS, the necessity of running many models also creates a substantial computational burden. For both interpretive and computational reasons it seems worthwhile to investigate alternative ways of using the within-area distance idea, avoiding these difficulties.
 
 \subsection{Domain warping}
 
@@ -255,7 +255,7 @@ An obvious question is whether we actually need $\cal D$ to be larger than 2 in 
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{examples/wt2/wt2-plot.pdf} \\
-\caption{Left to right: Test function over the peninsulae domain, points in the domain and finally their projection into 2-dimensional p-space when within-area distances are used to calculate the distance matrix. The p-space plot shows that some squashing can happen in two dimensions. The large left peninsula and some of the smaller peninsulae have lost their `width' and, in fact, points within them have lost ordering. This figure appears in colour in the electronic version of this article.}
+\caption{Left to right: Test function over the peninsulae domain, points in the domain and finally their projection into 2-dimensional p-space when within-area distances are used to calculate the distance matrix. The p-space plot shows that some squashing can happen in two dimensions. The large left peninsula and some of the smaller peninsulae have lost their `width' and, in fact, points within them have lost ordering.}
 \label{wt2-plot}
 % generated by examples/wt2/wt2-plot.R
 \end{figure}
@@ -317,8 +317,8 @@ Figure \ref{wt2-boxplots} shows the boxplots of the $\log$ of the MSE per realis
 
 \begin{figure}
 \centering
-\includegraphics{examples/wt2/wt2-result.pdf} \\
-\caption{Boxplots of logarithm of mean MSE per realisation for the models tested on the peninsulae domain at three noise levels. At each noise level, the median mean MSE was lower for MDSDS than for the thin plate regression spline, soap film smoother or GLTPS. A paired Wilcoxon signed-ranks test showed that the only significant difference (at the 5\% level) occurred between MDSDS and the soap film smoother at the 0.35 noise level.}
+\includegraphics[width=\textwidth]{examples/wt2/wt2-result.pdf} \\
+\caption{Boxplots of logarithm of mean MSE per realisation for the models tested on the peninsulae domain at three noise levels. At each noise level, the median mean MSE was lower for MDSDS than for the thin plate regression spline, soap film smoother and GLTPS. A paired Wilcoxon signed-ranks test showed that the only significant difference (at the 5\% level) occurred between MDSDS and the soap film smoother at the 0.35 noise level.}
 \label{wt2-boxplots}
 % generated by examples/wt2/wt2-boxplot.R
 \end{figure}
@@ -343,7 +343,7 @@ Predictions from the models over a grid of 496 points are shown in Figure \ref{a
 \begin{figure}
 \centering
 \includegraphics[height=0.8\textheight]{examples/aral/aral-plot.pdf}
-\caption{Aral sea analysis. Top to bottom, left to right. First row: raw data, predicted surface for thin plate regression spline. Second row: predicted surfaces for MDSDS and the soap film smoother. Bottom row: predicted surface for GLTPS. The latter three avoid the leakage seen in the $(-50, 50)$ region of the thin plate regression spline fit. This figure appears in colour in the electronic version of this article.}
+\caption{Predictions from models of the Aral sea chlorophyll data. Top row, left to right: raw data, predicted surface for thin plate regression spline. Second row: predicted surfaces for the soap film smoother and MDSDS. Bottom row: predicted surface for GLTPS. The latter three avoid the leakage seen in the $(-50, 50)$ region of the thin plate regression spline fit.}
 \label{aral-plot}
 % generated by examples/aral/aral-plot.R
 \end{figure}
@@ -351,11 +351,11 @@ Predictions from the models over a grid of 496 points are shown in Figure \ref{a
 \section{Discussion}
 \label{conclusion}
 
-Our MDSDS approach appears to have competitive performance compared to existing methods, while providing a number of possible advantages. Relative to the soap film smoother the method has a more natural handling of open and closed boundaries, and is also often the more natural model when the linkage between geographic areas is via movement of organisms. Relative to \cite{Wang:2007tf} our approach is somewhat more transparent in terms of what is being penalized when smoothing, and also uses a null space basis that avoids leakage, unlike the Wang and Ranalli method for which the null space does not respect boundary features. 
+Our MDSDS approach appears to have competitive performance compared to existing methods, while providing a number of possible advantages. Relative to the soap film smoother the method has a more natural handling of open and closed boundaries, and is also often the more natural model when the linkage between geographic areas is via movement of organisms. Relative to \cite{Wang:2007tf} our approach is somewhat more transparent in terms of what is being penalized when smoothing, and also uses a null space basis that avoids leakage, unlike the Wang and Ranalli method for which the null space does not respect boundary features. As mentioned above, MDSDS fits easily into a generalized additive model, which may have many more components, which are often necessary for ecological work.
 
-The MDSDS has an interesting link to kriging with within-area distances. For example \cite{Loland:2003tp} used river network distances in the construction of a variogram, and overcame the problem of lack of positive definiteness \cite[essentially the problem ignored in][]{Wang:2007tf} by using MDS and then constructing the variogram in MDS space \citep[this is investigated further in][]{Curriero:2005ww}. \cite{Jensen:2006kn} suggest using the proportion of variation explained or the Bayesian criterion of \cite{Oh:2011ve} as possible metrics to perform projection dimension selection in the kriging setting but do not fully address the issue, resorting to 2-dimensional projections. As mentioned in the introduction, using a basis penalty smoother allows our model to be easily included as a part of a larger model.
+As mentioned above, using MDS to build covariance functions for kriging as been investigated previously. When non-Euclidean distances are used, covariance functions may no-longer be positive definite or conditionally negative definite \citep{Curriero:2005ww}, so MDS can be used to project the data, creating a set of Euclidean distances. For example, \cite{Loland:2003tp} used river network distances in the construction of a variogram, and overcame the problem of lack of positive definiteness by using MDS and then constructing the variogram in MDS space. Projection dimension selection is partially addressed in \cite{Jensen:2006kn}, the authors suggesting using the proportion of variation explained or the Bayesian criterion of \cite{Oh:2011ve} as possible metrics but do not fully explore the issue, resorting to 2-dimensional projections. The use of Duchon splines in MDSDS allows for a high-dimensional projections, thus allowing for more accurate approximation of the distance matrix whilst ensuring that the points maintain ordering (this second point has not been addressed in the kriging literature to our knowledge).
 
-Further work would involve considering more biologically motivated measures of distance. For example, distances based on the minimum energetic cost of moving between  two locations. It is also of interest to investigate the use of MDSDS for smoothing non-geographic distances such as the socio-economic similarity of parliamentary constituencies, or measures of genetic relatedness.
+Further work would involve considering more biologically motivated measures of distance. For example, distances based on the minimum energetic cost of moving between  two locations. It is also of interest to investigate the use of MDSDS for smoothing non-geographic distances outside of ecology such as the socio-economic similarity of parliamentary constituencies, or measures of genetic relatedness.
 
 \begin{acknowledgements}
 David wishes to thank EPSRC for financial support during his PhD at the University of Bath.
@@ -365,7 +365,4 @@ David wishes to thank EPSRC for financial support during his PhD at the Universi
 \bibliographystyle{spbasic}      % basic style, author-year citations
 \bibliography{fa-refs.bib}   % name your BibTeX data base
 
-
 \end{document}
-% end of file template.tex
-

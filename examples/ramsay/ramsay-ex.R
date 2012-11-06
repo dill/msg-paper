@@ -1,18 +1,17 @@
 # save a single example of predictions from the models
 
 library(mgcv)
-library(soap)
+#library(soap)
 library(msg)
 library(fields)
 
 source("wr-wrapper.R")
 source("tps.R")
-source("pe.R")
 
 ## Initialisation
 # make the horseshoe boundary
 bnd <- fs.boundary()
-bnd<-pe(bnd,seq(1,length(bnd$x),8)) # simplify the boundary
+bnd<-as.data.frame(bnd)[seq(1,length(bnd$x),8),] # simplify the boundary
 fs.bnd<-list(x=c(bnd$x,bnd$x[1]),y=c(bnd$y,bnd$y[1]))
 
 # create the prediction grid and the points to sample
@@ -20,7 +19,7 @@ fs.bnd<-list(x=c(bnd$x,bnd$x[1]),y=c(bnd$y,bnd$y[1]))
 m<-100;n<-100
 xm <- seq(-1,3.5,length=m); yn<-seq(-1,1,length=n)
 xx <- rep(xm,n); yy<-rep(yn,rep(m,n))
-onoff<-inSide(bnd,xx,yy)
+onoff<-inSide(fs.bnd,xx,yy)
 xx<-xx[onoff];yy<-yy[onoff]
 fs.data<-data.frame(x=xx,y=yy,z=fs.test(xx,yy))
 pred.data<-data.frame(x=xx,y=yy)
@@ -28,7 +27,7 @@ pred.data<-data.frame(x=xx,y=yy)
 # knot setup for soap, as in paper
 knots <- data.frame(x=rep(seq(-.5,3,by=.5),4),
                     y=rep(c(-.6,-.3,.3,.6),rep(8,4)))
-knots.ind<-inSide(bnd,x=knots$x,y=knots$y)
+knots.ind<-inSide(fs.bnd,x=knots$x,y=knots$y)
 knots<-list(x=knots$x[knots.ind],y=knots$y[knots.ind])
 
 # clean up
